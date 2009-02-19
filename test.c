@@ -10,12 +10,13 @@ job *a[10 +1];
 
 static char * setup() {
     int j;
+    a[0] = malloc(sizeof(int));
     for(j = 1; j <= 4; j++)
         a[j] = malloc(sizeof(job));
-    build_job(a[1], 3, 2, 0, 0, 0);
-    build_job(a[2], 4, 5, 0, 0, 0);
-    build_job(a[3], 1, 12, 0, 0, 0);
-    build_job(a[4], 2, 2, 0, 0, 0);
+    build_job(a[1], 0, 3, 2, 0, 0, 0);
+    build_job(a[2], 1, 4, 5, 0, 0, 0);
+    build_job(a[3], 2, 1, 12, 0, 0, 0);
+    build_job(a[4], 3, 2, 2, 0, 0, 0);
     HEAPSIZE(a) = 4;
     return 0;
 }
@@ -132,9 +133,9 @@ static char * test_heap_insert() {
     job *fixture1 = malloc(sizeof(job));
     job *fixture2 = malloc(sizeof(job));
     job *fixture3 = malloc(sizeof(job));
-    build_job(fixture1, 10, 2, 0, 0, 0);
-    build_job(fixture2, 7, 2, 0, 0, 0);
-    build_job(fixture3, 3, 2, 0, 0, 0);
+    build_job(fixture1, 4, 10, 2, 0, 0, 0);
+    build_job(fixture2, 5, 7, 2, 0, 0, 0);
+    build_job(fixture3, 6, 3, 2, 0, 0, 0);
     setup();
     build_heap(a, fcfs_comparision);
     heap_insert(a, fcfs_comparision, fixture1);
@@ -158,6 +159,20 @@ static char * test_heap_insert() {
     return 0;
 }
 
+static char * test_pointers() {
+    job *fixture1 = malloc(sizeof(job));
+    job *fixture2 = malloc(sizeof(job));
+    job *fixture3;
+
+    build_job(fixture1, 4, 10, 2, 0, 0, 0);
+    build_job(fixture2, 5, 7, 2, 0, 0, 0);
+    build_job(fixture3, 6, 3, 2, 0, 0, 0);
+
+    int *foo = 5;
+    free(foo);
+    return 0;
+}
+
 static char * all_tests() {
     mu_run_test(test_setup);
     mu_run_test(test_relationships);
@@ -170,6 +185,7 @@ static char * all_tests() {
     mu_run_test(test_heap_extract_max);
     mu_run_test(test_increment_operator);
     mu_run_test(test_heap_insert);
+    mu_run_test(test_pointers);
     return 0;
 }
 
