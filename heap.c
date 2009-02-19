@@ -2,8 +2,9 @@
 #include <stdarg.h>
 #include "heap.h"
 
-void build_job(job *j, int arrive, int burst, int waiting, int end, int priority)
+void build_job(job *j, int id, int arrive, int burst, int waiting, int end, int priority)
 {
+    j->id = id;
     j->arrive = arrive;
     j->burst = burst;
     j->waiting = waiting;
