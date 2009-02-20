@@ -53,8 +53,9 @@ void* heap_extract_max(heap *h, int (*comp_func)(void*, void*))
 {
     if(h->size < 1)
         return NULL;
-    void *max = h->a[1];
-    h->a[1] = h->a[h->size];
+    void *max = h->a[1],
+         *temp = NULL;
+    SWAP(h->a[1], h->a[h->size], temp);
     h->size--;
     heapify(h, comp_func, 1);
     return max;
