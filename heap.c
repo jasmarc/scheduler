@@ -33,7 +33,7 @@ void heap_sort(heap *h, int (*comp_func)(void*, void*))
 {
     void *temp;
     int i;
-    build_heap(a, comp_func);
+    build_heap(h, comp_func);
     for(i = h->size; i > 1; i--) {
         SWAP(h->a[1], h->a[i], temp);
         h->size--;

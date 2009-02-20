@@ -18,10 +18,10 @@ static char * setup() {
     h->size = 4;
     for(j = 1; j <= 4; j++)
         h->a[j] = malloc(sizeof(thing));
-    ((thing*)(h->a[1]))->arrive = 0;
-    ((thing*)(h->a[2]))->arrive = 1;
-    ((thing*)(h->a[3]))->arrive = 2;
-    ((thing*)(h->a[4]))->arrive = 3;
+    ((thing*)(h->a[1]))->arrive = 3;
+    ((thing*)(h->a[2]))->arrive = 4;
+    ((thing*)(h->a[3]))->arrive = 1;
+    ((thing*)(h->a[4]))->arrive = 2;
     
     return 0;
 }
@@ -138,9 +138,9 @@ static char * test_heap_insert() {
     thing *fixture1 = malloc(sizeof(thing));
     thing *fixture2 = malloc(sizeof(thing));
     thing *fixture3 = malloc(sizeof(thing));
-    fixture1->arrive = 4;
-    fixture2->arrive = 5;
-    fixture3->arrive = 6;
+    fixture1->arrive = 10;
+    fixture2->arrive = 7;
+    fixture3->arrive = 3;
     setup();
     build_heap(h, fcfs_comparision);
     heap_insert(h, fcfs_comparision, fixture1);
@@ -167,14 +167,23 @@ static char * test_heap_insert() {
 static char * test_pointers() {
     thing *fixture1 = malloc(sizeof(thing));
     thing *fixture2 = malloc(sizeof(thing));
-    thing *fixture3;
-
+    //thing *fixture3 = NULL;
+    
     fixture1->arrive = 4;
     fixture2->arrive = 5;
     fixture3->arrive = 6;
-
-    int *foo = 5;
-    free(foo);
+    
+    int *foo;
+    int *bar;
+    foo = malloc(sizeof(int));
+    *foo = 5;
+    bar = foo;
+    mu_assert("bar == 5", *bar == 5);
+    mu_assert("foo == 5", *foo == 5);
+    free(bar);
+    bar = NULL;
+    mu_assert("foo == 5 after free", *foo == 5);
+    //mu_assert("bar == 5 after free", *bar == 5);
     return 0;
 }
 
