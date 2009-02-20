@@ -3,17 +3,14 @@
 int main (int argc, char const *argv[])
 {
     heap *h = malloc(sizeof(heap));
+    heap *c = malloc(sizeof(heap));
     heap_init(h);
+    heap_init(c);
     generate_jobs(h, sjf_comparison, 5);
     printf("number of jobs: %d\n", h->size);
     print_jobs(h);
-    process_jobs(h, sjf_comparison);
-    print_jobs(h);
-
-    int i;
-    for(i = 1; i <= 5; i++)
-        print_job(h->a[i]);
-
+    process_jobs(h, sjf_comparison, c);
+    print_results(c);
     return 0;
 }
 
@@ -38,18 +35,18 @@ void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs)
         i++, arrive_time += (rand() % 7))
     {
         job *temp = malloc(sizeof(job));
-        burst_time = 2 + exp(rand() % 5);
+        burst_time = 2 + (rand() % 5);
         build_job(temp, i, arrive_time, burst_time, 0, 0, 0);
         heap_insert(h, comp_func, temp);
     }
     return;
 }
 
-void process_jobs(heap *h, int (*comp_func)(void*, void*))
+void process_jobs(heap *h, int (*comp_func)(void*, void*), heap *c)
 {
     int i;
     job *current = NULL;
-    for(i = 0, current = heap_extract_max(h, comp_func);
+    for(i = 0; current = heap_extract_max(h, comp_func);
         current != NULL;
         i++)
     {
@@ -57,8 +54,10 @@ void process_jobs(heap *h, int (*comp_func)(void*, void*))
         printf("clock: %2d\t", i);
         print_job(current);
         current->burst--;
-        if(current->burst == 0)
+        if(current->burst == 0) {
+            //heap_insert(c, comp_func, current);
             current = heap_extract_max(h, comp_func);
+        }
     }
     return;
 }
@@ -99,5 +98,15 @@ void print_job(job *j)
         j->waiting,
         j->end,
         j->priority);
+    return;
+}
+
+void print_results(heap *c)
+{
+    int j, 
+        sum_waiting = 0;
+    for(j = 1; j < c->size; j++)
+        sum_waiting += ((job*)(c->a[j]))->waiting;
+    printf("average waiting time:\t%f\n", (float)sum_waiting / (float)c->size);
     return;
 }

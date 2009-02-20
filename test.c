@@ -171,6 +171,12 @@ static char * test_pointers() {
     return 0;
 }
 
+static char * test_floating_point_division() {
+    int i = 3, j = 4;
+    mu_assert("test floating point division", (float)i / (float)j == 0.75);
+    return 0;
+}
+
 static char * all_tests() {
     mu_run_test(test_setup);
     mu_run_test(test_relationships);
@@ -183,6 +189,7 @@ static char * all_tests() {
     mu_run_test(test_increment_operator);
     mu_run_test(test_heap_insert);
     mu_run_test(test_pointers);
+    mu_run_test(test_floating_point_division);
     return 0;
 }
 
