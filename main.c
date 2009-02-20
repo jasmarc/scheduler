@@ -4,12 +4,10 @@ int main (int argc, char const *argv[])
 {
     heap *h = malloc(sizeof(heap));
     heap_init(h);
-    generate_jobs(h, fcfs_comparison, 5);
-
+    generate_jobs(h, sjf_comparison, 5);
     printf("number of jobs: %d\n", h->size);
-
     print_jobs(h);
-    process_jobs(h, fcfs_comparison);
+    process_jobs(h, sjf_comparison);
     print_jobs(h);
 
     int i;
@@ -24,6 +22,11 @@ int fcfs_comparison(void *a, void *b)
     return (((job*)b)->arrive - ((job*)a)->arrive);
 }
 
+int sjf_comparison(void *a, void *b)
+{
+    return (((job*)b)->burst - ((job*)a)->burst);
+}
+
 void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs)
 {
     int i,
@@ -35,7 +38,7 @@ void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs)
         i++, arrive_time += (rand() % 7))
     {
         job *temp = malloc(sizeof(job));
-        burst_time = 2 + (rand() % 5);
+        burst_time = 2 + exp(rand() % 5);
         build_job(temp, i, arrive_time, burst_time, 0, 0, 0);
         heap_insert(h, comp_func, temp);
     }
