@@ -12,6 +12,7 @@ typedef struct {
     int size;
 } heap;
 
+void heap_init(heap *h);
 void heapify(heap *h, int (*comp_func)(void*, void*), int i);
 void build_heap(heap *h, int (*comp_func)(void*, void*));
 void heap_sort(heap *h, int (*comp_func)(void*, void*));

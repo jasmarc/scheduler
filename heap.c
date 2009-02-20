@@ -1,5 +1,14 @@
 #include "heap.h"
 
+void heap_init(heap *h)
+{
+    int j;
+    h->size = 0;
+    for(j = 0; j < MAX_HEAP_SIZE; j++)
+        h->a[j] = NULL;
+    return;
+}
+
 void heapify(heap *h, int (*comp_func)(void*, void*), int i)
 {
     void *temp = NULL;
@@ -43,7 +52,7 @@ void heap_sort(heap *h, int (*comp_func)(void*, void*))
 void* heap_extract_max(heap *h, int (*comp_func)(void*, void*))
 {
     if(h->size < 1)
-        fprintf(stderr, "heap underflow.\n");
+        return NULL;
     void *max = h->a[1];
     h->a[1] = h->a[h->size];
     h->size--;

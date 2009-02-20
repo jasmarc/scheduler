@@ -6,6 +6,7 @@ heap *h;
 static char * setup() {
     int j;
     h = malloc(sizeof(heap));
+    heap_init(h);
     h->size = 4;
     for(j = 1; j <= 4; j++)
         h->a[j] = malloc(sizeof(thing));
@@ -19,7 +20,7 @@ static char * setup() {
 
 int fcfs_comparision(void *a, void *b)
 {
-    return (((thing*)(a))->arrive - ((thing*)(b))->arrive);
+    return (((thing*)a)->arrive - ((thing*)b)->arrive);
 }
 
 static char * test_setup() {
@@ -106,6 +107,7 @@ static char * test_heap_extract_max() {
     mu_assert("heap_extract_max == 2", ((thing*)(heap_extract_max(h, fcfs_comparision)))->arrive == 2);
     mu_assert("heap_extract_max == 1", ((thing*)(heap_extract_max(h, fcfs_comparision)))->arrive == 1);
     mu_assert("heapsize is now zero", h->size == 0);
+    mu_assert("heap underflow", (thing*)(heap_extract_max(h, fcfs_comparision)) == NULL);
     return 0;
 }
 
