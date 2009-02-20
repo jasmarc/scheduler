@@ -1,13 +1,4 @@
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
 #include "test.h"
-#include "heap.h"
-
-typedef struct {
-    int arrive;
-} thing;
 
 int tests_run = 0;
 heap *h;

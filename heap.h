@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdarg.h>
+
 #define MAX_HEAP_SIZE 10
 #define PARENT(i) (i/2)
 #define LEFT(i) (2*i)

@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdarg.h>
 #include "heap.h"
 
 void heapify(heap *h, int (*comp_func)(void*, void*), int i)
