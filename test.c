@@ -55,15 +55,6 @@ static char * test_heapify() {
     return 0;
 }
 
-static char * test_swap() {
-    int i, j;
-    i = 5; j = 4;
-    SWAPINT(i, j);
-    mu_assert("swap i", i == 4);
-    mu_assert("swap j", j == 5);
-    return 0;
-}
-
 static char * test_swap_pointers() {
     char *foo_string = "Hello";
     char *bar_string = "world";
@@ -191,7 +182,6 @@ static char * all_tests() {
     mu_run_test(test_setup);
     mu_run_test(test_relationships);
     mu_run_test(test_heapify);
-    mu_run_test(test_swap);
     mu_run_test(test_swap_pointers);
     mu_run_test(test_values_after_heapify);
     mu_run_test(test_build_heap);

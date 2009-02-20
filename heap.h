@@ -2,7 +2,6 @@
 #define PARENT(i) (i/2)
 #define LEFT(i) (2*i)
 #define RIGHT(i) (2*i + 1)
-#define SWAPINT(a, b)  {a^=b; b^=a; a^=b;}
 #define SWAP(a, b, temp)  {temp=a; a=b; b=temp;}
 
 typedef struct {
