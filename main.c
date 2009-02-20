@@ -3,11 +3,6 @@
 #include <stdarg.h>
 #include "heap.h"
 
-void print_job(job *j);
-void generate_jobs(job *a[MAX_HEAP_SIZE], int number_of_jobs);
-int fcfs_comparision(job *a, job *b);
-void increment_wait_time(job *a[MAX_HEAP_SIZE]);
-
 int main (int argc, char const *argv[])
 {
     job *a[6];
@@ -67,4 +62,15 @@ void increment_wait_time(job *a[MAX_HEAP_SIZE])
 int fcfs_comparision(job *a, job *b)
 {
     return (b->arrive - a->arrive);
+}
+
+void build_job(job *j, int id, int arrive, int burst, int waiting, int end, int priority)
+{
+    j->id = id;
+    j->arrive = arrive;
+    j->burst = burst;
+    j->waiting = waiting;
+    j->end = end;
+    j->priority = priority;
+    return;
 }
