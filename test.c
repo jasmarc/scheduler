@@ -171,7 +171,7 @@ static char * test_pointers() {
     
     fixture1->arrive = 4;
     fixture2->arrive = 5;
-    fixture3->arrive = 6;
+    //fixture3->arrive = 6;
     
     int *foo;
     int *bar;
