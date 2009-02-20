@@ -4,10 +4,10 @@
 
 void heapify(heap *h, int (*comp_func)(void*, void*), int i)
 {
-    void *temp;
-    int largest;
-    int l = LEFT(i);
-    int r = RIGHT(i);
+    void *temp = NULL;
+    int largest,
+        l = LEFT(i),
+        r = RIGHT(i);
     if(l <= h->size && comp_func(h->a[l], h->a[i]) > 0)
         largest = l;
     else
@@ -31,7 +31,7 @@ void build_heap(heap *h, int (*comp_func)(void*, void*))
 
 void heap_sort(heap *h, int (*comp_func)(void*, void*))
 {
-    void *temp;
+    void *temp = NULL;
     int i;
     build_heap(h, comp_func);
     for(i = h->size; i > 1; i--) {
