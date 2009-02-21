@@ -59,7 +59,12 @@ int main (int argc, char *argv[])
         print_usage(argc, argv);
         return 1;
     }
-
+    if(number_of_jobs == 0 && filename == NULL) {
+        fprintf(stderr, "Must specify either -n or -i parameter.\n");
+        print_usage(argc, argv);
+        return 1;
+    }
+    
     if(sjf)
         process_jobs(sjf_comparison, filename, number_of_jobs, verbose);
     if(fcfs)
