@@ -15,23 +15,30 @@ int main (int argc, char *argv[])
     char *subopts, *value;
     int opt,
         sjf = 0,
-        fcfs = 0;
-    FILE *fp = NULL;
+        fcfs = 0,
+        verbose = 0;
+    char *filename = NULL;
     
     if(argc == 1) {
         print_usage(argc, argv);
         return 1;
     }
-    while ((opt = getopt(argc, argv, "i:s:")) != -1)
+    while ((opt = getopt(argc, argv, "hvi:s:")) != -1)
         switch (opt)
     {
+        case 'h':
+            print_usage(argc, argv);
+            break;
+        case 'v':
+            verbose = 1;
+            break;
         case 'i': 
-            fp = fopen(optarg, "r");
+            filename = optarg;
             break;
         case 's':
             subopts = optarg;
             while (*subopts != '\0')
-                switch (getsubopt (&subopts, scheduler_opts, &value))
+                switch (getsubopt(&subopts, scheduler_opts, &value))
             {
                 case SJF:
                     sjf = 1;
@@ -55,13 +62,13 @@ int main (int argc, char *argv[])
         heap *c = malloc(sizeof(heap));
         heap_init(h);
         heap_init(c);
-        if(fp)
-            read_jobs_from_file(h, sjf_comparison, fp);
+        if(filename)
+            read_jobs_from_file(h, sjf_comparison, filename);
         else
             generate_jobs(h, sjf_comparison, 5);
-        printf("number of jobs: %d\n", h->size);
+        printf("*** SJF ***\nnumber of jobs: %d\n", h->size);
         print_jobs(h);
-        process_jobs(h, sjf_comparison, c);
+        process_jobs(h, sjf_comparison, c, verbose);
         print_results(c);
     }
     
@@ -70,13 +77,13 @@ int main (int argc, char *argv[])
         heap *c = malloc(sizeof(heap));
         heap_init(h);
         heap_init(c);
-        if(fp)
-            read_jobs_from_file(h, fcfs_comparison, fp);
+        if(filename)
+            read_jobs_from_file(h, fcfs_comparison, filename);
         else
             generate_jobs(h, fcfs_comparison, 5);
-        printf("number of jobs: %d\n", h->size);
+        printf("*** FCFS ***\nnumber of jobs: %d\n", h->size);
         print_jobs(h);
-        process_jobs(h, fcfs_comparison, c);
+        process_jobs(h, fcfs_comparison, c, verbose);
         print_results(c);
     }
     return 0;

@@ -26,7 +26,7 @@ enum {
   THE_END
 };
 
-const char *scheduler_opts[] = {
+char *scheduler_opts[] = {
   [SJF] = "sjf",
   [FCFS] = "fcfs",
   [THE_END] = NULL
@@ -35,8 +35,8 @@ const char *scheduler_opts[] = {
 void build_job(job *j, int id, int arrive, int burst, int priority);
 void increment_waits(heap *h);
 void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs);
-void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), FILE *fp);
-void process_jobs(heap *h, int (*comp_func)(void*, void*), heap *c);
+void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char *filename);
+void process_jobs(heap *h, int (*comp_func)(void*, void*), heap *c, int verbose);
 void print_jobs(heap *h);
 void print_job(job *j);
 void print_results(heap *c);
@@ -79,14 +79,14 @@ void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs)
     return;
 }
 
-void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), FILE *fp)
+void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char *filename)
 {
     char buffer[256];
     int i = 0,
         arrive,
         burst,
         priority;
-
+    FILE *fp = fopen(filename, "r");
     while (!feof(fp)) {
         fgets(buffer, 256, fp);
         arrive = strtol(strtok(buffer, ",\n"), NULL, 10);
@@ -100,7 +100,7 @@ void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), FILE *fp)
     return;
 }
 
-void process_jobs(heap *h, int (*comp_func)(void*, void*), heap *c)
+void process_jobs(heap *h, int (*comp_func)(void*, void*), heap *c, int verbose)
 {
     int i;
     job *current = NULL;
@@ -109,8 +109,10 @@ void process_jobs(heap *h, int (*comp_func)(void*, void*), heap *c)
         i++)
     {
         increment_waits(h);
-        printf("clock: %2d\t", i);
-        print_job(current);
+        if(verbose) {
+            printf("clock: %2d\t", i);
+            print_job(current);
+        }
         current->burst--;
         if(current->burst == 0) {
             heap_insert(c, comp_func, current);
@@ -154,8 +156,11 @@ void print_results(heap *c)
 void print_usage(int argc, char *argv[])
 {
     printf("usage: %s [OPTIONS]\n", argv[0]);
+    printf("\t-h\t\t\tPrint this message.\n");
     printf("\t-i <file>\t\tRead comma-separated file with arrive,burst,priority\n");
+    printf("\t\t\t\tIf no file specified, 5 random jobs are generated automatically.\n");
     printf("\t-s <scheduler(s)>\tSpecify scheduler(s) to use.\n");
     printf("\t\t\t\tValid schedulers are: sjf, fcfs\n");
+    printf("\t-v\t\t\tVerbose mode. Prints an output for each CPU cycle.\n");
     return;
 }
