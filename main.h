@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <inttypes.h>
+#include <sys/types.h>
+#include <limits.h>
+#include <string.h>
 #include "heap.h"
 
 typedef struct {
@@ -9,30 +13,30 @@ typedef struct {
         arrive,
         burst,
         waiting,
+        start,
         end,
         priority;
 } job;
 
-void build_job(job *j, int id, int arrive, int burst, int waiting, int end, int priority);
-void increment_wait_times(heap *h);
+void build_job(job *j, int id, int arrive, int burst, int priority);
+void increment_waits(heap *h);
 void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs);
+void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char* filename);
 void process_jobs(heap *h, int (*comp_func)(void*, void*), heap *c);
 void print_jobs(heap *h);
 void print_job(job *j);
 void print_results(heap *c);
 
-void build_job(job *j, int id, int arrive, int burst, int waiting, int end, int priority)
+void build_job(job *j, int id, int arrive, int burst, int priority)
 {
     j->id = id;
     j->arrive = arrive;
     j->burst = burst;
-    j->waiting = waiting;
-    j->end = end;
     j->priority = priority;
     return;
 }
 
-void increment_wait_times(heap *h)
+void increment_waits(heap *h)
 {
     int i;
     for(i = 1; i <= h->size; i++)
@@ -43,18 +47,42 @@ void increment_wait_times(heap *h)
 void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs)
 {
     int i,
-        arrive_time,
-        burst_time;
+        arrive,
+        burst,
+        priority;
 
-    for(srand(i), i = 1, arrive_time = 0, h->size = 0;
+    for(srand(i), i = 1, arrive = 0, h->size = 0;
         i <= number_of_jobs;
-        i++, arrive_time += (rand() % 7))
+        i++, arrive += (rand() % 7))
     {
+        burst = 2 + (rand() % 5);
+        priority = rand() % 128;
         job *temp = malloc(sizeof(job));
-        burst_time = 2 + (rand() % 5);
-        build_job(temp, i, arrive_time, burst_time, 0, 0, 0);
+        build_job(temp, i, arrive, burst, priority);
         heap_insert(h, comp_func, temp);
     }
+    return;
+}
+
+void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char* filename) 
+{
+    char buffer[256];
+    int i = 0,
+        arrive,
+        burst,
+        priority;
+        
+    FILE *fp = fopen(filename, "r");
+    while (!feof(fp)) {
+        fgets(buffer, 256, fp);
+        arrive = strtol(strtok(buffer, ",\n"), NULL, 10);
+        burst = strtol(strtok(NULL, ",\n"), NULL, 10);
+        priority = strtol(strtok(NULL, ",\n"), NULL, 10);
+        job *temp = malloc(sizeof(job));
+        build_job(temp, i, arrive, burst, priority);
+        heap_insert(h, comp_func, temp);
+    }
+    fclose(fp);
     return;
 }
 
@@ -66,7 +94,7 @@ void process_jobs(heap *h, int (*comp_func)(void*, void*), heap *c)
         current != NULL;
         i++)
     {
-        increment_wait_times(h);
+        increment_waits(h);
         printf("clock: %2d\t", i);
         print_job(current);
         current->burst--;

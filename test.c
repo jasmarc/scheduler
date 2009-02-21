@@ -177,6 +177,23 @@ static char * test_floating_point_division() {
     return 0;
 }
 
+static char * test_file_operations() {
+    char buffer[256];
+    char *a, *b, *c;
+    int i, n;
+    FILE *fp = fopen("data.txt","r");
+    while (!feof(fp)) {
+        fgets(buffer, 256, fp);
+        a = strtok(buffer, ",\n");
+        b = strtok(NULL, ",\n");
+        c = strtok(NULL, ",\n");
+        i = strtol(c, NULL, 10);
+        //printf(foo, "1: %s, 2: %s, 3: %d\n", a, b, i);                
+    }
+    fclose(fp);
+    return 0;
+}
+
 static char * all_tests() {
     mu_run_test(test_setup);
     mu_run_test(test_relationships);
@@ -190,6 +207,7 @@ static char * all_tests() {
     mu_run_test(test_heap_insert);
     mu_run_test(test_pointers);
     mu_run_test(test_floating_point_division);
+    mu_run_test(test_file_operations);
     return 0;
 }
 
