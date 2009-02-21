@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <limits.h>
 #include <string.h>
+#include <time.h>
 #include "heap.h"
 
 typedef struct {
@@ -51,7 +52,7 @@ void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs)
         burst,
         priority;
 
-    for(srand(i), i = 1, arrive = 0, h->size = 0;
+    for(srand(time(NULL)), i = 1, arrive = 0, h->size = 0;
         i <= number_of_jobs;
         i++, arrive += (rand() % 7))
     {
@@ -64,14 +65,14 @@ void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs)
     return;
 }
 
-void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char* filename) 
+void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char* filename)
 {
     char buffer[256];
     int i = 0,
         arrive,
         burst,
         priority;
-        
+
     FILE *fp = fopen(filename, "r");
     while (!feof(fp)) {
         fgets(buffer, 256, fp);
@@ -116,11 +117,12 @@ void print_jobs(heap *h)
 
 void print_job(job *j)
 {
-    printf("id: %2d\tarrive: %2d\tburst: %2d\twaiting: %2d\tend: %2d\tpriority: %2d\n",
+    printf("id: %2d\tarrive: %2d\tburst: %2d\twaiting: %2d\tstart: %2d\tend: %2d\tpriority: %3d\n",
         j->id,
         j->arrive,
         j->burst,
         j->waiting,
+        j->start,
         j->end,
         j->priority);
     return;
@@ -128,7 +130,7 @@ void print_job(job *j)
 
 void print_results(heap *c)
 {
-    int j, 
+    int j,
         sum_waiting = 0;
     for(j = 1; j <= c->size; j++)
         sum_waiting += ((job*)(c->a[j]))->waiting;
