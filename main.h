@@ -212,6 +212,7 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
     return;
 }
 
+// print all jobs in the queue
 void print_jobs(heap *h)
 {
     int i;
@@ -220,6 +221,7 @@ void print_jobs(heap *h)
     return;
 }
 
+// print the given job
 void print_job(job *j)
 {
     printf("id: %2d\tarrive: %2d\tburst: %2d\twaiting: %2d\tstart: %2d\tend: %2d\tpriority: %3d\n",
@@ -233,6 +235,7 @@ void print_job(job *j)
     return;
 }
 
+// print all analytical results
 void print_results(heap *c)
 {
     int j,
@@ -243,6 +246,7 @@ void print_results(heap *c)
     return;
 }
 
+// print the command line usage
 void print_usage(int argc, char *argv[])
 {
     printf("usage: %s [OPTIONS]\n", argv[0]);

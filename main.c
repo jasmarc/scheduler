@@ -8,8 +8,9 @@ int main (int argc, char *argv[])
         fcfs           = 0,
         srtf           = 0,
         verbose        = 0,
-        number_of_jobs = 0;
-    char *filename = NULL;
+        number_of_jobs = 0,
+        no_scheduler   = 1;
+    char *filename     = NULL;
 
     if(argc == 1) {
         print_usage(argc, argv);
@@ -48,6 +49,7 @@ int main (int argc, char *argv[])
                     printf ("Unknown suboption `%s'\n", value);
                     break;
             }
+            no_scheduler = 0;
             break;
         default:
             print_usage(argc, argv);
@@ -64,7 +66,12 @@ int main (int argc, char *argv[])
         print_usage(argc, argv);
         return 1;
     }
-    
+    if(no_scheduler) {
+        fprintf(stderr, "Must specify a scheduler with -s parameter.\n");
+        print_usage(argc, argv);
+        return 1;
+    }
+
     if(sjf)
         process_jobs(sjf_comparison, filename, number_of_jobs, verbose);
     if(fcfs)

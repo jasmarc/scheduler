@@ -1,5 +1,6 @@
 #include "heap.h"
 
+// set heap size to 0 and NULL out all values
 void heap_init(heap *h)
 {
     int j;
@@ -9,6 +10,9 @@ void heap_init(heap *h)
     return;
 }
 
+// Adapted from Introduction to Algorithms, 1990, 
+// by Cormen, Leiserson, Rivest, and Stein.
+// Chapter 7, Section 7.2
 void heapify(heap *h, int (*comp_func)(void*, void*), int i)
 {
     void *temp = NULL;
@@ -28,6 +32,9 @@ void heapify(heap *h, int (*comp_func)(void*, void*), int i)
     return;
 }
 
+// Adapted from Introduction to Algorithms, 1990, 
+// by Cormen, Leiserson, Rivest, and Stein.
+// Chapter 7, Section 7.3
 void build_heap(heap *h, int (*comp_func)(void*, void*))
 {
     int i;
@@ -36,6 +43,9 @@ void build_heap(heap *h, int (*comp_func)(void*, void*))
     return;
 }
 
+// Adapted from Introduction to Algorithms, 1990, 
+// by Cormen, Leiserson, Rivest, and Stein.
+// Chapter 7, Section 7.5
 void* heap_extract_max(heap *h, int (*comp_func)(void*, void*))
 {
     if(h->size < 1)
@@ -48,6 +58,9 @@ void* heap_extract_max(heap *h, int (*comp_func)(void*, void*))
     return max;
 }
 
+// Adapted from Introduction to Algorithms, 1990, 
+// by Cormen, Leiserson, Rivest, and Stein.
+// Chapter 7, Section 7.5
 void heap_insert(heap *h, int (*comp_func)(void*, void*), void *key)
 {
     int i = ++h->size;

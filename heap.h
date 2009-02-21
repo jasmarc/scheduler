@@ -2,9 +2,9 @@
 #include <stdarg.h>
 
 #define MAX_HEAP_SIZE 100
-#define PARENT(i) (i/2)
-#define LEFT(i) (2*i)
-#define RIGHT(i) (2*i + 1)
+#define PARENT(i) (i/2)     // given the index of a heap node, the returns the parent index
+#define LEFT(i) (2*i)       // given the index of a heap node, the returns the left child index
+#define RIGHT(i) (2*i + 1)  // given the index of a heap node, the returns the right child index
 #define SWAP(a, b, temp)  {temp=a; a=b; b=temp;}
 
 typedef struct {

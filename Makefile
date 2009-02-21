@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -g -Wall
-EXEC = heap
+EXEC = scheduler
 
 $(EXEC): 
 	$(CC) $(CFLAGS) -o $(EXEC) main.c heap.c
