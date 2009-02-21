@@ -36,19 +36,6 @@ void build_heap(heap *h, int (*comp_func)(void*, void*))
     return;
 }
 
-void heap_sort(heap *h, int (*comp_func)(void*, void*))
-{
-    void *temp = NULL;
-    int i;
-    build_heap(h, comp_func);
-    for(i = h->size; i > 1; i--) {
-        SWAP(h->a[1], h->a[i], temp);
-        h->size--;
-        heapify(h, comp_func, 1);
-    }
-    return;
-}
-
 void* heap_extract_max(heap *h, int (*comp_func)(void*, void*))
 {
     if(h->size < 1)

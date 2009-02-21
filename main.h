@@ -11,46 +11,80 @@
 #include "heap.h"
 
 typedef struct {
-    int id,
-        arrive,
-        burst,
-        waiting,
-        start,
-        end,
-        priority;
+    int id,         // the id of the job
+        arrive,     // the arrive time
+        burst,      // the remaining burst time
+        waiting,    // the cumulative wait time
+        start,      // the start time
+        end,        // the end time
+        priority;   // the priority of the job
 } job;
 
+// Scheduler Algorithms (used by getopts parser)
 enum {
   SJF = 0,
   FCFS,
+  SRTF,
   THE_END
 };
-
+// Scheduler Algorithms (used by getopts parser)
 char *scheduler_opts[] = {
   [SJF] = "sjf",
   [FCFS] = "fcfs",
+  [SRTF] = "srtf",
   [THE_END] = NULL
 };
 
+// comparison routines
+//     each takes two pointers to obects and compares them, returning
+//     0 if they are equal, a negative value if a < b, or a positive
+//     value if a > b
+int fcfs_comparison(void *a, void *b);
+int sjf_comparison(void *a, void *b);
+int srtf_comparison(void *a, void *b);
+
+// processing routines
 void build_job(job *j, int id, int arrive, int burst, int priority);
 void increment_waits(heap *h);
 void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs);
 void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char *filename);
-void process_jobs(heap *h, int (*comp_func)(void*, void*), heap *c, int verbose);
+void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int verbose);
+
+// printing routines
 void print_jobs(heap *h);
 void print_job(job *j);
 void print_results(heap *c);
 void print_usage(int argc, char *argv[]);
 
+// compare based on arrive time
+int fcfs_comparison(void *a, void *b)
+{
+    return (((job*)b)->arrive - ((job*)a)->arrive);
+}
+
+// compare based on remaining burst time
+int sjf_comparison(void *a, void *b)
+{
+    return (((job*)b)->burst - ((job*)a)->burst);
+}
+
+// compare based on remaining burst time
+int srtf_comparison(void *a, void *b)
+{
+    return (((job*)b)->burst - ((job*)a)->burst);
+}
+
+// populates a job based on given data
 void build_job(job *j, int id, int arrive, int burst, int priority)
 {
-    j->id = id;
-    j->arrive = arrive;
-    j->burst = burst;
+    j->id       = id;
+    j->arrive   = arrive;
+    j->burst    = burst;
     j->priority = priority;
     return;
 }
 
+// iterates through all jobs and increments their "wait" value
 void increment_waits(heap *h)
 {
     int i;
@@ -59,6 +93,7 @@ void increment_waits(heap *h)
     return;
 }
 
+// generates random jobs and inserts them into the provided queue
 void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs)
 {
     int i,
@@ -66,19 +101,20 @@ void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs)
         burst,
         priority;
 
-    for(srand(time(NULL)), i = 1, arrive = 0, h->size = 0;
-        i <= number_of_jobs;
-        i++, arrive += (rand() % 7))
+    for(srand(time(NULL)), i = 1, arrive = 0, h->size = 0; // initialize variables
+        i <= number_of_jobs; // loop until i = the number_of_jobs specified
+        i++, arrive += (rand() % 7)) // we increment "arrive" by a random amount
     {
-        burst = 2 + (rand() % 5);
-        priority = rand() % 128;
-        job *temp = malloc(sizeof(job));
-        build_job(temp, i, arrive, burst, priority);
-        heap_insert(h, comp_func, temp);
+        burst = 2 + (rand() % 5); // set burst to random number
+        priority = rand() % 128; // set priority to random number
+        job *temp = malloc(sizeof(job)); // create a job
+        build_job(temp, i, arrive, burst, priority); // populate job
+        heap_insert(h, comp_func, temp); // stick it in the queue
     }
     return;
 }
 
+// reads jobs from a CSV file. format is "arrive,burst,priority" one per line.
 void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char *filename)
 {
     char buffer[256];
@@ -88,37 +124,91 @@ void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char *filename
         priority;
     FILE *fp = fopen(filename, "r");
     while (!feof(fp)) {
-        fgets(buffer, 256, fp);
+        fgets(buffer, 256, fp); // read a line
+
+        // tokenize the line by commas and newlines
         arrive = strtol(strtok(buffer, ",\n"), NULL, 10);
         burst = strtol(strtok(NULL, ",\n"), NULL, 10);
         priority = strtol(strtok(NULL, ",\n"), NULL, 10);
-        job *temp = malloc(sizeof(job));
-        build_job(temp, i, arrive, burst, priority);
-        heap_insert(h, comp_func, temp);
+
+        job *temp = malloc(sizeof(job)); // create a new job
+        build_job(temp, i++, arrive, burst, priority); // populate it
+        heap_insert(h, comp_func, temp); // stick it in the queue
     }
     fclose(fp);
     return;
 }
 
-void process_jobs(heap *h, int (*comp_func)(void*, void*), heap *c, int verbose)
+// this is the heart of the scheduler
+// comp_func    - a comparison function to use to determine priority
+// filename     - a file to read data from
+// n            - number of random jobs to generate (if we're not reading from file)
+// verbose      - if true, will print job data for each CPU cycle
+void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int verbose)
 {
-    int i;
-    job *current = NULL;
-    for(i = 0, current = heap_extract_max(h, comp_func);
-        current != NULL;
+    int i; // this is the primary counter variable
+    job *current = NULL; // this is the currently processing job
+
+    heap *g = malloc(sizeof(heap)); // genereated queue - holds jobs either generated or read from file
+    heap *p = malloc(sizeof(heap)); // process queue - holds jobs currently being processed
+    heap *c = malloc(sizeof(heap)); // complete queue - hold jobs that have been processed
+    heap_init(g);
+    heap_init(p);
+    heap_init(c);
+
+    if(filename) // if we got a filename, lets read data from the file
+        read_jobs_from_file(g, fcfs_comparison, filename);
+    else // otherwise, we'll just generate some random data
+        generate_jobs(g, fcfs_comparison, n);
+
+    // print a nice title to show which algorithm we're using and the number of jobs
+    char *algorithm_name = NULL;
+    if(comp_func == &sjf_comparison) {
+        algorithm_name = "Shortest Job First";
+    } else if(comp_func == &fcfs_comparison) {
+        algorithm_name = "First Come First Served";
+    } else if(comp_func == &srtf_comparison) {
+        algorithm_name = "Shortest Remaining Time First";
+    } else
+        algorithm_name = "Unknown";
+    printf("*** %s ***\nNumber of jobs: %d\n", algorithm_name, g->size);
+    print_jobs(g);
+
+    for(i = 0, current = heap_extract_max(g, comp_func); // pull the first item out of the generated queue
+        current != NULL; // go until we don't have a job to process!
         i++)
     {
-        increment_waits(h);
+        // grab the next "arrived" jobs out of the generated queue and put
+        // them into the process queue
+        job *insert;
+        while((insert = heap_extract_max(g, fcfs_comparison)) && insert->arrive <= i)
+            heap_insert(p, comp_func, insert);
+        if(insert && insert->arrive > i) // we might have pulled one too many out in the while loop
+            heap_insert(g, fcfs_comparison, insert); // so put it back
+
+        // print the job info if verbose mode
         if(verbose) {
             printf("clock: %2d\t", i);
             print_job(current);
         }
-        current->burst--;
+
+        current->burst--; // simulating "doing work" by decrementing the remaining burst time
+
+        // if we're done with this job, then put it in the "complete" queue
         if(current->burst == 0) {
-            heap_insert(c, comp_func, current);
-            current = heap_extract_max(h, comp_func);
+            heap_insert(c, comp_func, current); // put the job in the "complete" queue
+            current = heap_extract_max(p, comp_func); // grab the next job from the "process" queue
         }
+        // if this is srtf, then shove the current job back into the "process" queue
+        // and re-evaluate everyone's remaining burst time and pull the next shortest
+        // remaining burst-time job out, possibly preempting the current job
+        if(comp_func == &srtf_comparison) {
+            heap_insert(p, comp_func, current);
+            current = heap_extract_max(p, comp_func);
+        }
+        increment_waits(p); // for all "waiting" jobs, increment their "wait" value
     }
+    print_results(c); // print all algorithm analysis results
     return;
 }
 
@@ -158,9 +248,9 @@ void print_usage(int argc, char *argv[])
     printf("usage: %s [OPTIONS]\n", argv[0]);
     printf("\t-h\t\t\tPrint this message.\n");
     printf("\t-i <file>\t\tRead comma-separated file with arrive,burst,priority\n");
-    printf("\t\t\t\tIf no file specified, 5 random jobs are generated automatically.\n");
+    printf("\t-n <number>\t\tNumber of jobs to generate.\n");
     printf("\t-s <scheduler(s)>\tSpecify scheduler(s) to use.\n");
-    printf("\t\t\t\tValid schedulers are: sjf, fcfs\n");
+    printf("\t\t\t\tValid schedulers are: sjf, fcfs, srtf\n");
     printf("\t-v\t\t\tVerbose mode. Prints an output for each CPU cycle.\n");
     return;
 }

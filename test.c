@@ -81,20 +81,6 @@ static char * test_build_heap() {
     return 0;
 }
 
-static char * test_heap_sort() {
-    setup();
-    mu_assert("element 1", ((thing*)(h->a[1]))->arrive == 3);
-    mu_assert("element 2", ((thing*)(h->a[2]))->arrive == 4);
-    mu_assert("element 3", ((thing*)(h->a[3]))->arrive == 1);
-    mu_assert("element 4", ((thing*)(h->a[4]))->arrive == 2);
-    heap_sort(h, fcfs_comparision);
-    mu_assert("after heap_sort element 1", ((thing*)(h->a[1]))->arrive == 1);
-    mu_assert("after heap_sort element 2", ((thing*)(h->a[2]))->arrive == 2);
-    mu_assert("after heap_sort element 3", ((thing*)(h->a[3]))->arrive == 3);
-    mu_assert("after heap_sort element 4", ((thing*)(h->a[4]))->arrive == 4);
-    return 0;
-}
-
 static char * test_heap_extract_max() {
     setup();
     mu_assert("element 1", ((thing*)(h->a[1]))->arrive == 3);
@@ -177,23 +163,6 @@ static char * test_floating_point_division() {
     return 0;
 }
 
-static char * test_file_operations() {
-    char buffer[256];
-    char *a, *b, *c;
-    int i, n;
-    FILE *fp = fopen("data.txt","r");
-    while (!feof(fp)) {
-        fgets(buffer, 256, fp);
-        a = strtok(buffer, ",\n");
-        b = strtok(NULL, ",\n");
-        c = strtok(NULL, ",\n");
-        i = strtol(c, NULL, 10);
-        //printf(foo, "1: %s, 2: %s, 3: %d\n", a, b, i);                
-    }
-    fclose(fp);
-    return 0;
-}
-
 static char * all_tests() {
     mu_run_test(test_setup);
     mu_run_test(test_relationships);
@@ -201,13 +170,11 @@ static char * all_tests() {
     mu_run_test(test_swap_pointers);
     mu_run_test(test_values_after_heapify);
     mu_run_test(test_build_heap);
-    mu_run_test(test_heap_sort);
     mu_run_test(test_heap_extract_max);
     mu_run_test(test_increment_operator);
     mu_run_test(test_heap_insert);
     mu_run_test(test_pointers);
     mu_run_test(test_floating_point_division);
-    mu_run_test(test_file_operations);
     return 0;
 }
 
