@@ -192,6 +192,8 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
         algorithm_name = "First Come First Served";
     } else if(comp_func == &srtf_comparison) {
         algorithm_name = "Shortest Remaining Time First";
+    } else if(comp_func == &rr_comparison) {
+        algorithm_name = "Round Robin";
     } else
         algorithm_name = "Unknown";
     printf("*** %s ***\nNumber of jobs: %d\n", algorithm_name, g->size);
@@ -227,7 +229,7 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
             heap_insert(c, comp_func, current); // put the job in the "complete" queue
             current = heap_extract_max(p, comp_func); // grab the next job from the "process" queue
             if(current)
-        current->start = i + 1; // mark the start time for the new job
+                current->start = i + 1; // mark the start time for the new job
         }
         // if this is srtf, then shove the current job back into the "process" queue
         // and re-evaluate everyone's remaining burst time and pull the next shortest
