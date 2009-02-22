@@ -196,18 +196,22 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
 
         // if we're done with this job, then put it in the "complete" queue
         if(current->burst == 0) {
+            current->end = i; // mark the end time for the outgoing job
             heap_insert(c, comp_func, current); // put the job in the "complete" queue
             current = heap_extract_max(p, comp_func); // grab the next job from the "process" queue
+            if(current)
+		current->start = i + 1; // mark the start time for the new job
         }
         // if this is srtf, then shove the current job back into the "process" queue
         // and re-evaluate everyone's remaining burst time and pull the next shortest
         // remaining burst-time job out, possibly preempting the current job
-        if(comp_func == &srtf_comparison) {
+        if(comp_func == &srtf_comparison && current) {
             heap_insert(p, comp_func, current);
             current = heap_extract_max(p, comp_func);
         }
         increment_waits(p); // for all "waiting" jobs, increment their "wait" value
     }
+    if(verbose) print_jobs(c); // print all jobs when done if verbose
     print_results(c); // print all algorithm analysis results
     return;
 }
@@ -249,12 +253,15 @@ void print_results(heap *c)
 // print the command line usage
 void print_usage(int argc, char *argv[])
 {
-    printf("usage: %s [OPTIONS]\n", argv[0]);
-    printf("\t-h\t\t\tPrint this message.\n");
-    printf("\t-i <file>\t\tRead comma-separated file with arrive,burst,priority\n");
-    printf("\t-n <number>\t\tNumber of jobs to generate.\n");
-    printf("\t-s <scheduler(s)>\tSpecify scheduler(s) to use.\n");
-    printf("\t\t\t\tValid schedulers are: sjf, fcfs, srtf\n");
-    printf("\t-v\t\t\tVerbose mode. Prints an output for each CPU cycle.\n");
+    printf("usage:\t\t%s [OPTIONS]\n", argv[0]);
+    printf("example:\t%s -i data.txt -s sjf,fcfs,srtf -v\n", argv[0]);
+    printf("\t\t%s -n 5 -s sjf\n", argv[0]);
+    printf("options:\n");
+    printf(" -h\t\tPrint this message.\n");
+    printf(" -i <file>\tRead comma-separated file with arrive,burst,priority\n");
+    printf(" -n <number>\tNumber of jobs to generate if not reading from file.\n");
+    printf(" -s <sched(s)>\tSpecify scheduler(s) to use.\n");
+    printf(" \t\tValid schedulers are: sjf, fcfs, srtf\n");
+    printf(" -v\t\tVerbose mode. Prints an output for each CPU cycle.\n");
     return;
 }
