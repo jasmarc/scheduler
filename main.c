@@ -50,7 +50,7 @@ int main (int argc, char *argv[])
                     rr = 1;
                     break;
                 default:
-                    printf ("Unknown suboption `%s'\n", value);
+                    printf ("unknown scheduler passed in list to -s\n");
                     break;
             }
             no_scheduler = 0;

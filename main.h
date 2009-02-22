@@ -46,6 +46,7 @@ int fcfs_comparison(void *a, void *b);
 int sjf_comparison(void *a, void *b);
 int srtf_comparison(void *a, void *b);
 int rr_comparison(void *a, void *b);
+int id_comparison(void *a, void *b);
 
 // processing routines
 void build_job(job *j, int id, int arrive, int burst, int priority);
@@ -97,6 +98,12 @@ int rr_comparison(void *a, void *b)
     return retval;
 }
 
+// compare based on id (for administrative purposes only)
+int id_comparison(void *a, void *b)
+{
+    return (((job*)b)->id - ((job*)a)->id);
+}
+
 // populates a job based on given data
 void build_job(job *j, int id, int arrive, int burst, int priority)
 {
@@ -145,20 +152,26 @@ void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char *filename
         arrive,
         burst,
         priority;
-    FILE *fp = fopen(filename, "r");
-    while (!feof(fp)) {
-        fgets(buffer, 256, fp); // read a line
+    FILE *fp;
+    if((fp = fopen(filename, "r"))) {
+        while (!feof(fp)) {
+            fgets(buffer, 256, fp); // read a line
 
-        // tokenize the line by commas and newlines
-        arrive = strtol(strtok(buffer, ",\n"), NULL, 10);
-        burst = strtol(strtok(NULL, ",\n"), NULL, 10);
-        priority = strtol(strtok(NULL, ",\n"), NULL, 10);
+            // tokenize the line by commas and newlines
+            arrive = strtol(strtok(buffer, ",\n"), NULL, 10);
+            burst = strtol(strtok(NULL, ",\n"), NULL, 10);
+            priority = strtol(strtok(NULL, ",\n"), NULL, 10);
 
-        job *temp = malloc(sizeof(job)); // create a new job
-        build_job(temp, i++, arrive, burst, priority); // populate it
-        heap_insert(h, comp_func, temp); // stick it in the queue
+            job *temp = malloc(sizeof(job)); // create a new job
+            build_job(temp, i++, arrive, burst, priority); // populate it
+            heap_insert(h, comp_func, temp); // stick it in the queue
+        }
+        fclose(fp);
     }
-    fclose(fp);
+    else {
+        fprintf(stderr, "error opening file %s\n", filename);
+        exit(1);
+    }
     return;
 }
 
@@ -180,9 +193,9 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
     heap_init(c);
 
     if(filename) // if we got a filename, lets read data from the file
-        read_jobs_from_file(g, fcfs_comparison, filename);
+        read_jobs_from_file(g, id_comparison, filename);
     else // otherwise, we'll just generate some random data
-        generate_jobs(g, fcfs_comparison, n);
+        generate_jobs(g, id_comparison, n);
 
     // print a nice title to show which algorithm we're using and the number of jobs
     char *algorithm_name = NULL;
@@ -196,9 +209,7 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
         algorithm_name = "Round Robin";
     } else
         algorithm_name = "Unknown";
-    printf("*** %s ***\nNumber of jobs: %d\n", algorithm_name, g->size);
-    print_jobs(g);
-
+    printf("*** %s ***\n", algorithm_name);
     for(i = 0, current = heap_extract_max(g, comp_func); // pull the first item out of the generated queue
         current != NULL; // go until we don't have a job to process!
         i++)
@@ -206,14 +217,14 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
         // grab the next "arrived" jobs out of the generated queue and put
         // them into the process queue
         job *insert;
-        while((insert = heap_extract_max(g, fcfs_comparison)) && insert->arrive <= i) {
+        while((insert = heap_extract_max(g, id_comparison)) && insert->arrive <= i) {
             // for round robin, newly arrived processes have same priority as current process
             if(comp_func == &rr_comparison) insert->priority = current->priority;
             // insert newly arrived process in process queue
             heap_insert(p, comp_func, insert);
         }
         if(insert && insert->arrive > i) // we might have pulled one too many out in the while loop
-            heap_insert(g, fcfs_comparison, insert); // so put it back
+            heap_insert(g, id_comparison, insert); // so put it back
 
         // print the job info if verbose mode
         if(verbose) {
@@ -277,11 +288,23 @@ void print_job(job *j)
 // print all analytical results
 void print_results(heap *c)
 {
-    int j,
-        sum_waiting = 0;
-    for(j = 1; j <= c->size; j++)
-        sum_waiting += ((job*)(c->a[j]))->waiting;
-    printf("average waiting time: %3.2f\n", (float)sum_waiting / (float)c->size);
+    job *current       = NULL;
+    int number_of_jobs = c->size,
+        sum_waiting    = 0,
+        sum_turnaround = 0,
+        sum_response   = 0,
+        max_end        = 0;
+    while((current = heap_extract_max(c, id_comparison))) {
+        sum_waiting += current->waiting;
+        sum_turnaround += (current->end - current->arrive);
+        sum_response += (current->start - current->arrive);
+        max_end = max_end > current->end ? max_end : current->end;
+    }
+    printf("number of jobs:\t\t\t%d jobs\n", number_of_jobs);
+    printf("average waiting time:\t\t%3.2f ms\n", (float)sum_waiting / (float)number_of_jobs);
+    printf("average turnaround time:\t%3.2f ms\n", (float)sum_turnaround / (float)number_of_jobs);
+    printf("average response time:\t\t%3.2f ms\n", (float)sum_response / (float)number_of_jobs);
+    printf("throughput:\t\t\t%3.2f jobs/ms\n", (float)number_of_jobs / (float)max_end);
     return;
 }
 
