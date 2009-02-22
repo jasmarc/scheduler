@@ -123,6 +123,10 @@ void build_job(job *j, int id, int arrive, int burst, int priority)
     j->arrive   = arrive;
     j->burst    = burst;
     j->priority = priority;
+    j->waiting  = 0;
+    j->start    = -1;
+    j->end      = 0;
+    j->service  = 0;
     return;
 }
 
@@ -135,16 +139,24 @@ void increment_waits(heap *h)
     return;
 }
 
-// iterates through all jobs and recalculates priorites (for unix scheduler only)
+// iterates through all jobs and recalculates priorites (for unix scheduler only).
+// clarification from instructor, Saurav Karmakar, below:
+// The calculation of CPU usage is just calculation of frequency of
+// usage. Suppose the base=60 and assume that recent CPU usage for
+// process P1 is 40, process P2 is 18, and process P3 is 10 at time
+// t0(i.e P1 has used CPU 40 times since last time you checked and so
+// on). Now what will be the new priorities for these three processes
+// when priorities are recalculated, say at t1?
+//  Priority for P1= (40/2)+60=80
+//  Priority for P2= (18/2)+60=69
+//  Priority for P1= (10/2)+60=65
 void recalculate_priorities(heap *h, int current_time)
 {
     int i;
     job *j = NULL;
     for(i = 1; i <= h->size; i++) {
         j = (job*)(h->a[i]);
-        // if a job has never been serviced, it has highest priority (i.e. 0)
-        // if a job has been serviced, its priority is (time since recent CPU usage/2) + base
-        j->priority = j->service == 0 ? 0 : (current_time - j->service)/2 + 64;
+        j->priority = (j->service)/2 + 60;
     }
     return;
 }
@@ -253,6 +265,10 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
         }
         if(insert && insert->arrive > i) // we might have pulled one too many out in the while loop
             heap_insert(g, id_comparison, insert); // so put it back
+        
+        if(current->start < 0) current->start = i; // markstart if first time at CPU
+        current->service++; // increment the service time
+        current->burst--; // decrement the remaining burst time
 
         // print the job info if verbose mode
         if(verbose) {
@@ -260,16 +276,12 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
             print_job(current);
         }
 
-        current->service = i; // set service time to current clock time
-        current->burst--; // simulating "doing work" by decrementing the remaining burst time
-
         // if we're done with this job, then put it in the "complete" queue
         if(current->burst == 0) {
             current->end = i; // mark the end time for the outgoing job
-            heap_insert(c, comp_func, current); // put the job in the "complete" queue
+            heap_insert(c, id_comparison, current); // put the job in the "complete" queue
             current = heap_extract_max(p, comp_func); // grab the next job from the "process" queue
-            if(current)
-                current->start = i + 1; // mark the start time for the new job
+
         }
         // if this is srtf, then shove the current job back into the "process" queue
         // and re-evaluate everyone's remaining burst time and pull the next shortest
