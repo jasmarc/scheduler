@@ -7,6 +7,7 @@ int main (int argc, char *argv[])
         sjf            = 0,
         fcfs           = 0,
         srtf           = 0,
+        rr             = 0,
         verbose        = 0,
         number_of_jobs = 0,
         no_scheduler   = 1;
@@ -45,6 +46,9 @@ int main (int argc, char *argv[])
                 case SRTF:
                     srtf = 1;
                     break;
+                case RR:
+                    rr = 1;
+                    break;
                 default:
                     printf ("Unknown suboption `%s'\n", value);
                     break;
@@ -78,5 +82,7 @@ int main (int argc, char *argv[])
         process_jobs(fcfs_comparison, filename, number_of_jobs, verbose);
     if(srtf)
         process_jobs(srtf_comparison, filename, number_of_jobs, verbose);
+    if(rr)
+        process_jobs(rr_comparison, filename, number_of_jobs, verbose);
     return 0;
 }

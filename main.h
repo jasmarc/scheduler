@@ -25,14 +25,17 @@ enum {
   SJF = 0,
   FCFS,
   SRTF,
+  RR,
   THE_END
 };
 // Scheduler Algorithms (used by getopts parser)
 char *scheduler_opts[] = {
-  [SJF] = "sjf",
-  [FCFS] = "fcfs",
-  [SRTF] = "srtf",
+  [SJF]     = "sjf",
+  [FCFS]    = "fcfs",
+  [SRTF]    = "srtf",
+  [RR]      = "rr",
   [THE_END] = NULL
+
 };
 
 // comparison routines
@@ -42,6 +45,7 @@ char *scheduler_opts[] = {
 int fcfs_comparison(void *a, void *b);
 int sjf_comparison(void *a, void *b);
 int srtf_comparison(void *a, void *b);
+int rr_comparison(void *a, void *b);
 
 // processing routines
 void build_job(job *j, int id, int arrive, int burst, int priority);
@@ -56,22 +60,41 @@ void print_job(job *j);
 void print_results(heap *c);
 void print_usage(int argc, char *argv[]);
 
-// compare based on arrive time
+// compare based on arrive time, then id
 int fcfs_comparison(void *a, void *b)
 {
-    return (((job*)b)->arrive - ((job*)a)->arrive);
+    int retval;
+    retval = (((job*)b)->arrive - ((job*)a)->arrive);
+    if(retval == 0) retval = (((job*)b)->id - ((job*)a)->id);
+    return retval;
 }
 
-// compare based on remaining burst time
+// compare based on remaining burst time, then by id
 int sjf_comparison(void *a, void *b)
 {
-    return (((job*)b)->burst - ((job*)a)->burst);
+    int retval;
+    retval = (((job*)b)->burst - ((job*)a)->burst);
+    if(retval == 0) retval = (((job*)b)->id - ((job*)a)->id);
+    return retval;
 }
 
-// compare based on remaining burst time
+// compare based on remaining burst time (but with preemption), then by id
 int srtf_comparison(void *a, void *b)
 {
-    return (((job*)b)->burst - ((job*)a)->burst);
+    int retval;
+    retval = (((job*)b)->burst - ((job*)a)->burst);
+    if(retval == 0) retval = (((job*)b)->id - ((job*)a)->id);
+    return retval;
+}
+
+// compare based on priority first, then by arrive time, then by id
+int rr_comparison(void *a, void *b)
+{
+    int retval;
+    retval = (((job*)b)->priority - ((job*)a)->priority);
+    if(retval == 0) retval = (((job*)b)->arrive - ((job*)a)->arrive);
+    if(retval == 0) retval = (((job*)b)->id - ((job*)a)->id);
+    return retval;
 }
 
 // populates a job based on given data
@@ -181,8 +204,12 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
         // grab the next "arrived" jobs out of the generated queue and put
         // them into the process queue
         job *insert;
-        while((insert = heap_extract_max(g, fcfs_comparison)) && insert->arrive <= i)
+        while((insert = heap_extract_max(g, fcfs_comparison)) && insert->arrive <= i) {
+            // for round robin, newly arrived processes have same priority as current process
+            if(comp_func == &rr_comparison) insert->priority = current->priority;
+            // insert newly arrived process in process queue
             heap_insert(p, comp_func, insert);
+        }
         if(insert && insert->arrive > i) // we might have pulled one too many out in the while loop
             heap_insert(g, fcfs_comparison, insert); // so put it back
 
@@ -200,12 +227,18 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
             heap_insert(c, comp_func, current); // put the job in the "complete" queue
             current = heap_extract_max(p, comp_func); // grab the next job from the "process" queue
             if(current)
-		current->start = i + 1; // mark the start time for the new job
+        current->start = i + 1; // mark the start time for the new job
         }
         // if this is srtf, then shove the current job back into the "process" queue
         // and re-evaluate everyone's remaining burst time and pull the next shortest
         // remaining burst-time job out, possibly preempting the current job
         if(comp_func == &srtf_comparison && current) {
+            heap_insert(p, comp_func, current);
+            current = heap_extract_max(p, comp_func);
+        }
+        // round robin preemption
+        if(comp_func == &rr_comparison && current) {
+            current->priority++;
             heap_insert(p, comp_func, current);
             current = heap_extract_max(p, comp_func);
         }
@@ -261,7 +294,7 @@ void print_usage(int argc, char *argv[])
     printf(" -i <file>\tRead comma-separated file with arrive,burst,priority\n");
     printf(" -n <number>\tNumber of jobs to generate if not reading from file.\n");
     printf(" -s <sched(s)>\tSpecify scheduler(s) to use.\n");
-    printf(" \t\tValid schedulers are: sjf, fcfs, srtf\n");
+    printf(" \t\tValid schedulers are: sjf, fcfs, srtf, rr\n");
     printf(" -v\t\tVerbose mode. Prints an output for each CPU cycle.\n");
     return;
 }
