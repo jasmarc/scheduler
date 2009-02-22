@@ -17,7 +17,8 @@ typedef struct {
         waiting,    // the cumulative wait time
         start,      // the start time
         end,        // the end time
-        priority;   // the priority of the job
+        priority,   // the priority of the job
+        service;    // most recent service time
 } job;
 
 // Scheduler Algorithms (used by getopts parser)
@@ -26,6 +27,7 @@ enum {
   FCFS,
   SRTF,
   RR,
+  UNIX,
   THE_END
 };
 // Scheduler Algorithms (used by getopts parser)
@@ -34,6 +36,7 @@ char *scheduler_opts[] = {
   [FCFS]    = "fcfs",
   [SRTF]    = "srtf",
   [RR]      = "rr",
+  [UNIX]    = "unix",
   [THE_END] = NULL
 
 };
@@ -56,9 +59,8 @@ void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char *filename
 void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int verbose);
 
 // printing routines
-void print_jobs(heap *h);
 void print_job(job *j);
-void print_results(heap *c);
+void print_results(heap *c, int verbose);
 void print_usage(int argc, char *argv[]);
 
 // compare based on arrive time, then id
@@ -98,6 +100,16 @@ int rr_comparison(void *a, void *b)
     return retval;
 }
 
+// compare based on priority first, then by arrive time, then by id
+int unix_comparison(void *a, void *b)
+{
+    int retval;
+    retval = (((job*)b)->priority - ((job*)a)->priority);
+    if(retval == 0) retval = (((job*)b)->arrive - ((job*)a)->arrive);
+    if(retval == 0) retval = (((job*)b)->id - ((job*)a)->id);
+    return retval;
+}
+
 // compare based on id (for administrative purposes only)
 int id_comparison(void *a, void *b)
 {
@@ -120,6 +132,18 @@ void increment_waits(heap *h)
     int i;
     for(i = 1; i <= h->size; i++)
         ((job*)(h->a[i]))->waiting++;
+    return;
+}
+
+// iterates through all jobs and recalculates priorites (for unix scheduler only)
+void recalculate_priorities(heap *h, int current_time)
+{
+    int i;
+    job *j = NULL;
+    for(i = 1; i <= h->size; i++) {
+        j = (job*)(h->a[i]);
+        j->priority = j->service == 0 ? 0 : (current_time - j->service)/2 + 64;
+    }
     return;
 }
 
@@ -207,6 +231,8 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
         algorithm_name = "Shortest Remaining Time First";
     } else if(comp_func == &rr_comparison) {
         algorithm_name = "Round Robin";
+    } else if(comp_func == &unix_comparison) {
+        algorithm_name = "POSIX Dynamic Priorities";
     } else
         algorithm_name = "Unknown";
     printf("*** %s ***\n", algorithm_name);
@@ -232,6 +258,7 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
             print_job(current);
         }
 
+        current->service = i; // set service time to current clock time
         current->burst--; // simulating "doing work" by decrementing the remaining burst time
 
         // if we're done with this job, then put it in the "complete" queue
@@ -255,38 +282,35 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
             heap_insert(p, comp_func, current);
             current = heap_extract_max(p, comp_func);
         }
+        // unix preemption
+        if(comp_func == &unix_comparison && current) {
+            heap_insert(p, comp_func, current);
+            recalculate_priorities(p, i);            
+            current = heap_extract_max(p, comp_func);
+        }
         increment_waits(p); // for all "waiting" jobs, increment their "wait" value
     }
-    if(verbose) print_jobs(c); // print all jobs when done if verbose
-    print_results(c); // print all algorithm analysis results
-    return;
-}
-
-// print all jobs in the queue
-void print_jobs(heap *h)
-{
-    int i;
-    for(i = 1; i <= h->size; i++)
-        print_job(h->a[i]);
+    print_results(c, verbose); // print all algorithm analysis results
     return;
 }
 
 // print the given job
 void print_job(job *j)
 {
-    printf("id: %2d\tarrive: %2d\tburst: %2d\twaiting: %2d\tstart: %2d\tend: %2d\tpriority: %3d\n",
+    printf("id: %2d\tarrive: %2d\tburst: %2d\twaiting: %2d\tstart: %2d\tend: %2d\tpriority: %3d\tservice: %3d\n",
         j->id,
         j->arrive,
         j->burst,
         j->waiting,
         j->start,
         j->end,
-        j->priority);
+        j->priority,
+        j->service);
     return;
 }
 
 // print all analytical results
-void print_results(heap *c)
+void print_results(heap *c, int verbose)
 {
     job *current       = NULL;
     int number_of_jobs = c->size,
@@ -294,12 +318,15 @@ void print_results(heap *c)
         sum_turnaround = 0,
         sum_response   = 0,
         max_end        = 0;
+    if(verbose) printf("final job values:\n");
     while((current = heap_extract_max(c, id_comparison))) {
         sum_waiting += current->waiting;
         sum_turnaround += (current->end - current->arrive);
         sum_response += (current->start - current->arrive);
         max_end = max_end > current->end ? max_end : current->end;
+        if(verbose) print_job(current);
     }
+    printf("final statistics:\n");
     printf("number of jobs:\t\t\t%d jobs\n", number_of_jobs);
     printf("average waiting time:\t\t%3.2f ms\n", (float)sum_waiting / (float)number_of_jobs);
     printf("average turnaround time:\t%3.2f ms\n", (float)sum_turnaround / (float)number_of_jobs);

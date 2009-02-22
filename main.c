@@ -8,6 +8,7 @@ int main (int argc, char *argv[])
         fcfs           = 0,
         srtf           = 0,
         rr             = 0,
+        unix           = 0,
         verbose        = 0,
         number_of_jobs = 0,
         no_scheduler   = 1;
@@ -49,6 +50,9 @@ int main (int argc, char *argv[])
                 case RR:
                     rr = 1;
                     break;
+                case UNIX:
+                    unix = 1;
+                    break;
                 default:
                     printf ("unknown scheduler passed in list to -s\n");
                     break;
@@ -84,5 +88,7 @@ int main (int argc, char *argv[])
         process_jobs(srtf_comparison, filename, number_of_jobs, verbose);
     if(rr)
         process_jobs(rr_comparison, filename, number_of_jobs, verbose);
+    if(unix)
+        process_jobs(unix_comparison, filename, number_of_jobs, verbose);
     return 0;
 }
