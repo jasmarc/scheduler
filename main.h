@@ -142,6 +142,8 @@ void recalculate_priorities(heap *h, int current_time)
     job *j = NULL;
     for(i = 1; i <= h->size; i++) {
         j = (job*)(h->a[i]);
+        // if a job has never been serviced, it has highest priority (i.e. 0)
+        // if a job has been serviced, its priority is (time since recent CPU usage/2) + base
         j->priority = j->service == 0 ? 0 : (current_time - j->service)/2 + 64;
     }
     return;
@@ -346,7 +348,7 @@ void print_usage(int argc, char *argv[])
     printf(" -i <file>\tRead comma-separated file with arrive,burst,priority\n");
     printf(" -n <number>\tNumber of jobs to generate if not reading from file.\n");
     printf(" -s <sched(s)>\tSpecify scheduler(s) to use.\n");
-    printf(" \t\tValid schedulers are: sjf, fcfs, srtf, rr\n");
+    printf(" \t\tValid schedulers are: sjf, fcfs, srtf, rr, unix\n");
     printf(" -v\t\tVerbose mode. Prints an output for each CPU cycle.\n");
     return;
 }
