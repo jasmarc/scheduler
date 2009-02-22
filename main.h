@@ -237,7 +237,7 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
         algorithm_name = "POSIX Dynamic Priorities";
     } else
         algorithm_name = "Unknown";
-    printf("*** %s ***\n", algorithm_name);
+    printf("\n*** %s ***\n", algorithm_name);
     for(i = 0, current = heap_extract_max(g, comp_func); // pull the first item out of the generated queue
         current != NULL; // go until we don't have a job to process!
         i++)
@@ -329,11 +329,11 @@ void print_results(heap *c, int verbose)
         if(verbose) print_job(current);
     }
     printf("final statistics:\n");
-    printf("number of jobs:\t\t\t%d jobs\n", number_of_jobs);
-    printf("average waiting time:\t\t%3.2f ms\n", (float)sum_waiting / (float)number_of_jobs);
-    printf("average turnaround time:\t%3.2f ms\n", (float)sum_turnaround / (float)number_of_jobs);
-    printf("average response time:\t\t%3.2f ms\n", (float)sum_response / (float)number_of_jobs);
-    printf("throughput:\t\t\t%3.2f jobs/ms\n", (float)number_of_jobs / (float)max_end);
+    printf(" number of jobs:\t\t%d jobs\n", number_of_jobs);
+    printf(" average waiting time:\t\t%3.2f ms\n", (float)sum_waiting / (float)number_of_jobs);
+    printf(" average turnaround time:\t%3.2f ms\n", (float)sum_turnaround / (float)number_of_jobs);
+    printf(" average response time:\t\t%3.2f ms\n", (float)sum_response / (float)number_of_jobs);
+    printf(" throughput:\t\t\t%3.2f jobs/ms\n", (float)number_of_jobs / (float)max_end);
     return;
 }
 

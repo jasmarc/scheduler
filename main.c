@@ -18,8 +18,8 @@ int main (int argc, char *argv[])
         print_usage(argc, argv);
         return 1;
     }
-    while ((opt = getopt(argc, argv, "hvn:i:s:")) != -1)
-        switch (opt)
+    while((opt = getopt(argc, argv, "hvn:i:s:")) != -1)
+        switch(opt)
     {
         case 'h':
             print_usage(argc, argv);
@@ -35,8 +35,8 @@ int main (int argc, char *argv[])
             break;
         case 's':
             subopts = optarg;
-            while (*subopts != '\0')
-                switch (getsubopt(&subopts, scheduler_opts, &value))
+            while(*subopts != '\0')
+                switch(getsubopt(&subopts, scheduler_opts, &value))
             {
                 case SJF:
                     sjf = 1;
@@ -54,7 +54,7 @@ int main (int argc, char *argv[])
                     unix_sched = 1;
                     break;
                 default:
-                    printf ("unknown scheduler passed in list to -s\n");
+                    printf("unknown scheduler passed in list to -s\n");
                     break;
             }
             no_scheduler = 0;
@@ -65,17 +65,17 @@ int main (int argc, char *argv[])
             break;
     }
     if(number_of_jobs > 0 && filename) {
-        fprintf(stderr, "Cannot specify both -n and -i parameters.\n");
+        fprintf(stderr, "cannot specify both -n and -i parameters.\n");
         print_usage(argc, argv);
         return 1;
     }
     if(number_of_jobs == 0 && filename == NULL) {
-        fprintf(stderr, "Must specify either -n or -i parameter.\n");
+        fprintf(stderr, "must specify either -n or -i parameter.\n");
         print_usage(argc, argv);
         return 1;
     }
     if(no_scheduler) {
-        fprintf(stderr, "Must specify a scheduler with -s parameter.\n");
+        fprintf(stderr, "must specify a scheduler with -s parameter.\n");
         print_usage(argc, argv);
         return 1;
     }
