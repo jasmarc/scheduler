@@ -330,10 +330,10 @@ void print_results(heap *c, int verbose)
     }
     printf("final statistics:\n");
     printf(" number of jobs:\t\t%d jobs\n", number_of_jobs);
-    printf(" average waiting time:\t\t%3.2f ms\n", (float)sum_waiting / (float)number_of_jobs);
+    printf(" throughput:\t\t\t%3.2f jobs/ms\n", (float)number_of_jobs / (float)max_end);
     printf(" average turnaround time:\t%3.2f ms\n", (float)sum_turnaround / (float)number_of_jobs);
     printf(" average response time:\t\t%3.2f ms\n", (float)sum_response / (float)number_of_jobs);
-    printf(" throughput:\t\t\t%3.2f jobs/ms\n", (float)number_of_jobs / (float)max_end);
+    printf(" average waiting time:\t\t%3.2f ms\n", (float)sum_waiting / (float)number_of_jobs);
     return;
 }
 
