@@ -38,8 +38,11 @@ This is simply the number of jobs per unit of time. Throughout this report, time
 ===1.2.2 CPU Utilization
 This number, given as a percent, is an indication of the amount of time that the CPU has spent doing useful work as opposed to time spent context switching. A context switch occurs when a process is preempted. The system must stop what it is doing, package up the current process's work environment, and move all of this safely to a storage area to be worked on later and to make room for the incoming process. This switching of tasks in and out is pure overhead and should be minimized in an efficient algorithm.
 ===1.2.3 Average Turnaround Time
+This is the amount of time it takes to service a process from arrival to completion.
 ===1.2.4 Average Response Time
+This is the amount of time it takes from the moment a process arrives to the moment we see the first response from the process, that is the first instant in which the process is being serviced.
 ===1.2.5 Average Waiting Time
+This is the total amount of time a scheduled process spends waiting, including time spent waiting for its first turn at the CPU as well as time spent waiting after being preempted by a higher priority process.
 
 =2 Experiment
 =3 Results
