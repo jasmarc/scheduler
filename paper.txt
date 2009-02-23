@@ -13,7 +13,7 @@ In this paper we will look at the following scheduling algorithms:
 
 We will observe the following output metrics:
 1. Job Throughput
-2. Cpu Utilization
+2. CPU Utilization
 3. Average Turnaround Time
 4. Average Response Time
 5. Average Waiting Time
@@ -30,7 +30,16 @@ Jobs are prioritized by job burst duration but allowing for preemption by shorte
 ===1.1.4 Round Robin
 Jobs are timesliced and interleaved over time, allocating a certain quantum of time to each enqueued process. For example, P0 and P1 arrive at the same time t0 and no other processes are enqueued or are being serviced. The CPU alternates between servicing P0 and P1 over equal quanta of times until both processes are completed. If other processes arrive while P0 and P1 are being serviced, they join the back of the queue and are rotated into the cycle. If the remaining burst duration of a particular process is less than the time chosen for the service quantum, the scheduler simply moves to the next item in the queue.
 ===1.1.5 POSIX Dynamic Priorities Scheduling
-POSIX Dynamic Priorities Scheduling algorithm is another preemptive algorithm that was designed to counter the starvation scenario presented in the SJF algorithm as well as assign different classes of priorities to 
+POSIX Dynamic Priorities Scheduling algorithm is another preemptive scheduling algorithm that was designed to counter the starvation scenario presented in the SJF algorithm as well as assign different classes of priorities to different types of processes. Priorities are recalculated for all enqueued processes on a set schedule such that priority = (recent CPU usage/2) + base, where recent CPU usage is how much time the given process has spent at the CPU and base is a tunable, implementation-specific factor. This algorithm ensures that processes that have seen the CPU but were preempted will not be starved out by incoming processes, and thus will eventually be allowed to finish.
+
+==1.2 Performance metrics
+===1.2.1 Job Throughput
+This is simply the number of jobs per unit of time. Throughout this report, time will always be measured in milliseconds.
+===1.2.2 CPU Utilization
+This number, given as a percent, is an indication of the amount of time that the CPU has spent doing useful work as opposed to time spent context switching. A context switch occurs when a process is preempted. The system must stop what it is doing, package up the current process's work environment, and move all of this safely to a storage area to be worked on later and to make room for the incoming process. This switching of tasks in and out is pure overhead and should be minimized in an efficient algorithm.
+===1.2.3 Average Turnaround Time
+===1.2.4 Average Response Time
+===1.2.5 Average Waiting Time
 
 =2 Experiment
 =3 Results
