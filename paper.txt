@@ -1,8 +1,37 @@
 Simulation and Algorithm Analysis of CPU Scheduling Models
 =Abstract
 This paper examines the factors that influence the performance of various CPU scheduling algorithms in order to evaluate each as determined by a set of common performance metrics.
-=Introduction
-CPU scheduling is the process by which a computer's operating system deteminines how, in what order, and for how long individual processes in a queue of processes are allowed to access the CPU. Input factors such as the chosen scheduling algorithm, the length of processes, and frequency of processes will have an influence on performance factors such as CPU utilization, average job waiting time, average job response time, and average job turn-around time. Depending on the application, 
-=Experiment
-=Results
-=Conclusion
+=1 Introduction
+CPU scheduling is the process by which a computer's operating system deteminines how, in what order, and for how long individual processes in a queue of processes are allowed to access the CPU. Input factors such as the chosen scheduling algorithm, the length of processes, and frequency of processes will have an influence on performance factors such as CPU utilization, average job waiting time, average job response time, and average job turn-around time. Depending on the application, the importance of some factors may weight more heavily than others. For instance, a system that is designed for heavier human-computer-interaction may require lower average job response time in order to make the system appeat more responsive. 
+
+In this paper we will look at the following scheduling algorithms:
+1. First Come First Served
+2. Shortest Job First
+3. Shortest Remaining Time First
+4. Round Robin
+5. POSIX Dynamic Priorities Scheduling
+
+We will observe the following output metrics:
+1. Job Throughput
+2. Cpu Utilization
+3. Average Turnaround Time
+4. Average Response Time
+5. Average Waiting Time
+
+We will also vary our random sample of data by altering certain factors which will be discussed later.
+
+==1.1 Scheduling Algorithms
+===1.1.1 First Come First Served
+Jobs are processed in the order that they arrive. For example, process P0 is the first to arrive at time t0 and no other processes are enqueued or are being serviced. P0 has a burst duration of 3. P0 is immediately serviced and continues to be serviced through to time t2. P1 showed up at time t1, but because the CPU was busy at the time, P1 is not serviced until time t3. Likewise with any other processes that arrive while the CPU is busy. Arrival does not guarantee immediate service, however earlier arrival does ensure higher priority for later scheduling.
+===1.1.2 Shortest Job First
+Jobs are prioritized by job burst duration. For example, P0 and P1 arrive at the same time t0 and no other processes are enqueued or are being serviced. The CPU choses the shorter of the two jobs, lets say for example it was P0, and leaves the other, P1, in the queue. While the CPU is servicing P0, other jobs may show up and join P1 in the queue. The fact that P1 arrived before those jobs has no bearing on their priority in this queue. If one of the jobs that has come along happens to be shorter than P1, it will jump the to front of the line and will be scheduled to recieve service before P1. This scheduling algorithm allows for the possiblity of starvation. It is possible that P1 may never get a turn at the CPU if a continuous stream of shorter jobs is in fresh supply to cut in front of P1.
+===1.1.3 Shortest Remaining Time First
+Jobs are prioritized by job burst duration but allowing for preemption by shorter, newly-arriving processes. For example, P0 and P1 arrive at the same time t0 and no other processes are enqueued or are being serviced. The CPU choses the shorter of the two jobs, lets say for example it was P0, and leaves the other, P1, in the queue. While the CPU is servicing P0, other jobs may show up and if they happen to be shorter in burst duration than the amount of remaining time left to finish servicing P0, then P0 is preempted by the shorter process. P0 is then shoved back into the queue unfinished and the shorter job is serviced. P0 will rise to the front of the queue again when its remaining burst duration is less than the remaining burst duration of any other process.
+===1.1.4 Round Robin
+Jobs are timesliced and interleaved over time, allocating a certain quantum of time to each enqueued process. For example, P0 and P1 arrive at the same time t0 and no other processes are enqueued or are being serviced. The CPU alternates between servicing P0 and P1 over equal quanta of times until both processes are completed. If other processes arrive while P0 and P1 are being serviced, they join the back of the queue and are rotated into the cycle. If the remaining burst duration of a particular process is less than the time chosen for the service quantum, the scheduler simply moves to the next item in the queue.
+===1.1.5 POSIX Dynamic Priorities Scheduling
+POSIX Dynamic Priorities Scheduling algorithm is another preemptive algorithm that was designed to counter the starvation scenario presented in the SJF algorithm as well as assign different classes of priorities to 
+
+=2 Experiment
+=3 Results
+=4 Conclusion
