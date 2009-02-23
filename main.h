@@ -189,17 +189,17 @@ void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs)
 void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char *filename)
 {
     char buffer[256];
-    int i        = 0,
-        arrive   = 0,
-        burst    = 0,
-        priority = 0;
-    FILE *fp     = NULL;
+    int i = 0,
+        arrive,
+        burst,
+        priority;
+    FILE *fp;
     if((fp = fopen(filename, "r"))) {
         while (!feof(fp)) {
             fgets(buffer, 256, fp); // read a line
 
             // tokenize the line by commas and newlines
-            arrive += strtol(strtok(buffer, ",\n"), NULL, 10);
+            arrive = strtol(strtok(buffer, ",\n"), NULL, 10);
             burst = strtol(strtok(NULL, ",\n"), NULL, 10);
             priority = strtol(strtok(NULL, ",\n"), NULL, 10);
 
@@ -297,7 +297,7 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
                 }
 
                 // if we're done with this job, then put it in the "complete" queue
-                if(current->burst <= 0) {
+                if(current->burst == 0) {
                     current->end = i; // mark the end time for the outgoing job
                     heap_insert(c, id_comparison, current); // put the job in the "complete" queue
                     current = NULL;

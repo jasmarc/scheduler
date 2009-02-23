@@ -1,7 +1,4 @@
-m = round(exprnd(1/10, 500, 3) * 42);
-save -text "data1.txt" m;
-hist(m, 42);
-title ("exponential distribution for beta = 10");
-xlabel "value";
-ylabel "count";
-print -dpng data1.png
+m = round(exprnd(1/10, 500, 3) * 42) + 2 * ones(500,3) * diag([1,0],1); save -text "data1.txt" m;
+hist(m, 42); title ("exponential distribution for beta = 10"); xlabel "value"; ylabel "count"; print -dpng data1.png
+m = round(exprnd(1/3, 500, 3) * 42) + 2 * ones(500,3) * diag([1,0],1); save -text "data2.txt" m;
+hist(m, 42); title ("exponential distribution for beta = 10"); xlabel "value"; ylabel "count"; print -dpng data2.png
