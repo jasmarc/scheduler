@@ -1,0 +1,8 @@
+Simulation and Algorithm Analysis of CPU Scheduling Models
+=Abstract
+This paper examines the factors that influence the performance of various CPU scheduling algorithms in order to evaluate each as determined by a set of common performance metrics.
+=Introduction
+CPU scheduling is the process by which a computer's operating system deteminines how, in what order, and for how long individual processes in a queue of processes are allowed to access the CPU. Input factors such as the chosen scheduling algorithm, the length of processes, and frequency of processes will have an influence on performance factors such as CPU utilization, average job waiting time, average job response time, and average job turn-around time. Depending on the application, 
+=Experiment
+=Results
+=Conclusion
