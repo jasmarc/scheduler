@@ -239,12 +239,6 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
     else // otherwise, we'll just generate some random data
         generate_jobs(g, fcfs_comparison, n);
 
-    int k;
-    printf("***********************\n");
-    for(k = 1; k <= g->size; k++)
-        print_job(((job*)(g->a[k])));
-    printf("***********************\n");
-
     // print a nice title to show which algorithm we're using and the number of jobs
     char *algorithm_name = NULL;
     if(comp_func == &sjf_comparison) {
@@ -260,7 +254,8 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
     } else
         algorithm_name = "Unknown";
     printf("\n*** %s ***\n", algorithm_name);
-    for(current = heap_extract_max(g, fcfs_comparison), i = current->arrive;
+    
+    for(i = 0;
         !done;
         i++)
     {
@@ -268,53 +263,49 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
         // them into the process queue
         job *insert;
         while((insert = heap_extract_max(g, fcfs_comparison)) && insert->arrive <= i) {
-            // for round robin, newly arrived processes have same priority as current process
-            if(comp_func == &rr_comparison) insert->priority = current->priority;
-            // insert newly arrived process in process queue
+            if(comp_func == &rr_comparison) insert->priority = i;
             heap_insert(p, comp_func, insert);
+            insert = NULL;
         }
         if(insert && insert->arrive > i) // we might have pulled one too many out in the while loop
             heap_insert(g, fcfs_comparison, insert); // so put it back
-        
-        if(current->start < 0) current->start = i; // markstart if first time at CPU
-        current->service++; // increment the service time
-        current->burst--; // decrement the remaining burst time
 
-        // print the job info if verbose mode
-        if(verbose) {
-            printf("clock: %2d\t", i);
-            if(current)
-                print_job(current);
-            else
-                printf("idle.\n");
+        if(current == NULL)
+            current = heap_extract_max(p, comp_func);
+        else {
+            if(comp_func == &srtf_comparison
+               || comp_func == &rr_comparison
+               || comp_func == &unix_comparison)
+            {
+                if(comp_func == &rr_comparison) current->priority = i;
+                heap_insert(p, comp_func, current);
+                current = heap_extract_max(p, comp_func);
+            }
         }
+        if(current == NULL) {
+            if(g->size == 0) done = TRUE;
+            else if(verbose) printf("clock: %2d\tidle\n", i);
+        }
+        else {
+            if(current->arrive <= i) {
+                if(current->start < 0) current->start = i; // markstart if first time at CPU
+                current->service++; // increment the service time
+                current->burst--; // decrement the remaining burst time
+                if(verbose) {
+                    printf("clock: %2d\t", i);
+                    print_job(current);
+                }
 
-        // if we're done with this job, then put it in the "complete" queue
-        if(current->burst == 0) {
-            current->end = i; // mark the end time for the outgoing job
-            heap_insert(c, id_comparison, current); // put the job in the "complete" queue
-            current = heap_extract_max(p, comp_func); // grab the next job from the "process" queue
+                // if we're done with this job, then put it in the "complete" queue
+                if(current->burst == 0) {
+                    current->end = i; // mark the end time for the outgoing job
+                    heap_insert(c, id_comparison, current); // put the job in the "complete" queue
+                    current = NULL;
+                }
+                increment_waits(p); // for all "waiting" jobs, increment their "wait" value
+            }
+            else if(verbose) printf("clock: %2d\tidle\n", i);
         }
-        // if this is srtf, then shove the current job back into the "process" queue
-        // and re-evaluate everyone's remaining burst time and pull the next shortest
-        // remaining burst-time job out, possibly preempting the current job
-        if(comp_func == &srtf_comparison && current) {
-            heap_insert(p, comp_func, current);
-            current = heap_extract_max(p, comp_func);
-        }
-        // round robin preemption
-        if(comp_func == &rr_comparison && current) {
-            current->priority++;
-            heap_insert(p, comp_func, current);
-            current = heap_extract_max(p, comp_func);
-        }
-        // unix preemption
-        if(comp_func == &unix_comparison && current) {
-            heap_insert(p, comp_func, current);
-            recalculate_priorities(p, i);            
-            current = heap_extract_max(p, comp_func);
-        }
-        increment_waits(p); // for all "waiting" jobs, increment their "wait" value
     }
     print_results(c, verbose); // print all algorithm analysis results
     return;
