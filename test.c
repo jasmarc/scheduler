@@ -1,4 +1,6 @@
 #include "test.h"
+#define TRUE 1
+#define FALSE 0
 
 int tests_run = 0;
 heap *h;
@@ -163,6 +165,16 @@ static char * test_floating_point_division() {
     return 0;
 }
 
+static char * test_boolean() {
+    int a = 0, b = 1, c = -1;
+    mu_assert("boolean a", !a);
+    mu_assert("boolean not b", b);
+    mu_assert("boolean not c", c);
+    mu_assert("TRUE", TRUE);
+    mu_assert("!FALSE", !FALSE);
+    return 0;
+}
+
 static char * all_tests() {
     mu_run_test(test_setup);
     mu_run_test(test_relationships);
@@ -175,6 +187,7 @@ static char * all_tests() {
     mu_run_test(test_heap_insert);
     mu_run_test(test_pointers);
     mu_run_test(test_floating_point_division);
+    mu_run_test(test_boolean);
     return 0;
 }
 
