@@ -172,6 +172,8 @@ static char * test_boolean() {
     mu_assert("boolean not c", c);
     mu_assert("TRUE", TRUE);
     mu_assert("!FALSE", !FALSE);
+    const char* foo = "\n";
+    printf("%d\n", strlen(foo));
     return 0;
 }
 
