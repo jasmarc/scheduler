@@ -386,7 +386,7 @@ void print_usage(int argc, char *argv[])
     printf("\t\t%s -n 5 -s sjf\n", argv[0]);
     printf("options:\n");
     printf(" -h\t\tPrint this message.\n");
-    printf(" -i <file>\tRead comma-separated file with arrive,burst,priority\n");
+    printf(" -i <file>\tRead comma-separated file with arrive,burst\n");
     printf(" -n <number>\tNumber of jobs to generate if not reading from file.\n");
     printf(" -s <sched(s)>\tSpecify scheduler(s) to use.\n");
     printf(" \t\tValid schedulers are: sjf, fcfs, srtf, rr, unix\n");
