@@ -246,7 +246,7 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
     {
         // grab the next "arrived" jobs out of the generated queue and put
         // them into the process queue
-        job *insert;
+        job *insert, *temp;
         while((insert = heap_extract_max(g, fcfs_comparison)) && insert->arrive <= i) {
             if(comp_func == &rr_comparison) insert->priority = i;
             heap_insert(p, comp_func, insert);
@@ -256,17 +256,22 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
         if(insert && insert->arrive > i) // we might have pulled one too many out in the while loop
             heap_insert(g, fcfs_comparison, insert); // so put it back
 
-        if(current == NULL)
+        if(current == NULL) {
+            temp = current;
             current = heap_extract_max(p, comp_func);
+            if(verbose && temp != current) printf("clock: %2d\tcontext switch\n", i++);
+        }
         else {
             if(comp_func == &srtf_comparison
                 || comp_func == &rr_comparison
                 || comp_func == &unix_comparison)
             {
+                temp = current;
                 if(comp_func == &rr_comparison) current->priority = i;
                 heap_insert(p, comp_func, current);
                 if(comp_func == &unix_comparison) recalculate_priorities(p, i);
                 current = heap_extract_max(p, comp_func);
+                if(verbose && temp != current) printf("clock: %2d\tcontext switch\n", i++);
             }
         }
         if(current == NULL) {
