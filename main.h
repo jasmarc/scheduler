@@ -321,7 +321,7 @@ void print_title(int (*comp_func)(void*, void*))
 // print the given job
 void print_job(job *j)
 {
-    printf("id: %2d\tarrive: %2d\tburst: %2d\twaiting: %2d\tstart: %2d\tend: %2d\tpriority: %3d\tservice: %3d\n",
+    printf("id: %3d\tarrive: %4d\tburst: %4d\twaiting: %4d\tstart: %4d\tend: %4d\tpriority: %4d\tservice: %4d\n",
         j->id,
         j->arrive,
         j->burst,
