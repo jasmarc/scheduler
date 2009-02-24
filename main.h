@@ -55,7 +55,7 @@ int rr_comparison(void *a, void *b);
 int id_comparison(void *a, void *b);
 
 // processing routines
-void build_job(job *j, int id, int arrive, int burst, int priority);
+void build_job(job *j, int id, int arrive, int burst);
 void increment_waits(heap *h);
 void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs);
 void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char *filename);
@@ -121,12 +121,12 @@ int id_comparison(void *a, void *b)
 }
 
 // populates a job based on given data
-void build_job(job *j, int id, int arrive, int burst, int priority)
+void build_job(job *j, int id, int arrive, int burst)
 {
     j->id       = id;
     j->arrive   = arrive;
     j->burst    = burst;
-    j->priority = priority;
+    j->priority = 0;
     j->waiting  = 0;
     j->start    = -1;
     j->end      = 0;
@@ -170,17 +170,15 @@ void generate_jobs(heap *h, int (*comp_func)(void*, void*), int number_of_jobs)
 {
     int i,
         arrive,
-        burst,
-        priority;
+        burst;
 
     for(srand(time(NULL)), i = 1, arrive = 0, h->size = 0; // initialize variables
         i <= number_of_jobs; // loop until i = the number_of_jobs specified
         i++, arrive += (rand() % 7)) // we increment "arrive" by a random amount
     {
         burst = 2 + (rand() % 5); // set burst to random number
-        priority = rand() % 128; // set priority to random number
         job *temp = malloc(sizeof(job)); // create a job
-        build_job(temp, i, arrive, burst, priority); // populate job
+        build_job(temp, i, arrive, burst); // populate job
         heap_insert(h, comp_func, temp); // stick it in the queue
     }
     return;
@@ -192,26 +190,23 @@ void read_jobs_from_file(heap *h, int (*comp_func)(void*, void*), char *filename
     char buffer[256];
     char *temp;
     int i           = 0,
-        arrive 	    = 0,
-        burst 	    = 0,
-        priority    = 0;
+        arrive      = 0,
+        burst       = 0;
     FILE *fp        = NULL;
     if((fp = fopen(filename, "r"))) {
         while (!feof(fp)) {
             fgets(buffer, 256, fp); // read a line
 
             // tokenize the line by commas and newlines
-	    if(strlen(buffer) > 1) {		
-		if((temp = strtok(buffer, ",\n")) != NULL && strlen(temp) > 0)
-		    arrive += strtol(temp, NULL, 10);
-		if((temp = strtok(NULL, ",\n")) != NULL && strlen(temp) > 0)
-		    burst = strtol(temp, NULL, 10);
-		if((temp = strtok(NULL, ",\n")) != NULL && strlen(temp) > 0)
-		    priority = strtol(temp, NULL, 10);
-		job *temp = malloc(sizeof(job)); // create a new job
-		build_job(temp, i++, arrive, burst, priority); // populate it
-		heap_insert(h, comp_func, temp); // stick it in the queue
-	    }
+            if(strlen(buffer) > 1) {        
+                if((temp = strtok(buffer, ",\n")) != NULL && strlen(temp) > 0)
+                    arrive += strtol(temp, NULL, 10);
+                if((temp = strtok(NULL, ",\n")) != NULL && strlen(temp) > 0)
+                    burst = strtol(temp, NULL, 10);
+                job *temp = malloc(sizeof(job)); // create a new job
+                build_job(temp, i++, arrive, burst); // populate it
+                heap_insert(h, comp_func, temp); // stick it in the queue
+            }
         }
         fclose(fp);
     }
@@ -247,17 +242,15 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
 
     print_title(comp_func);
     
-    for(i = 0;
-        !done;
-        i++)
+    for(i = 0; !done; i++)
     {
         // grab the next "arrived" jobs out of the generated queue and put
         // them into the process queue
         job *insert;
         while((insert = heap_extract_max(g, fcfs_comparison)) && insert->arrive <= i) {
-            heap_insert(p, comp_func, insert);
             if(comp_func == &rr_comparison) insert->priority = i;
-	    if(comp_func == &unix_comparison) recalculate_priorities(p, i);	                    
+            heap_insert(p, comp_func, insert);
+            if(comp_func == &unix_comparison) recalculate_priorities(p, i);                     
             insert = NULL;
         }
         if(insert && insert->arrive > i) // we might have pulled one too many out in the while loop
@@ -267,12 +260,12 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
             current = heap_extract_max(p, comp_func);
         else {
             if(comp_func == &srtf_comparison
-               || comp_func == &rr_comparison
-               || comp_func == &unix_comparison)
+                || comp_func == &rr_comparison
+                || comp_func == &unix_comparison)
             {
+                if(comp_func == &rr_comparison) current->priority = i;
                 heap_insert(p, comp_func, current);
-		if(comp_func == &rr_comparison) current->priority = i;
-		if(comp_func == &unix_comparison) recalculate_priorities(p, i);
+                if(comp_func == &unix_comparison) recalculate_priorities(p, i);
                 current = heap_extract_max(p, comp_func);
             }
         }
