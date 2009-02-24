@@ -44,6 +44,9 @@ char *scheduler_opts[] = {
 
 };
 
+//global variable to sum all context switches
+int sum_context = 0;
+
 // comparison routines
 //     each takes two pointers to obects and compares them, returning
 //     0 if they are equal, a negative value if a < b, or a positive
@@ -259,7 +262,11 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
         if(current == NULL) {
             temp = current;
             current = heap_extract_max(p, comp_func);
-            if(verbose && temp != current) printf("clock: %2d\tcontext switch\n", i++);
+            if(temp != current) {
+                if(verbose) printf("clock: %2d\tcontext switch\n", i++);
+                sum_context++;
+                increment_waits(p);
+            }
         }
         else {
             if(comp_func == &srtf_comparison
@@ -271,7 +278,11 @@ void process_jobs(int (*comp_func)(void*, void*), char *filename, int n, int ver
                 heap_insert(p, comp_func, current);
                 if(comp_func == &unix_comparison) recalculate_priorities(p, i);
                 current = heap_extract_max(p, comp_func);
-                if(verbose && temp != current) printf("clock: %2d\tcontext switch\n", i++);
+                if(temp != current) {
+                    if(verbose) printf("clock: %2d\tcontext switch\n", i++);
+                    sum_context++;
+                    increment_waits(p);
+                }
             }
         }
         if(current == NULL) {
@@ -343,12 +354,14 @@ void print_results(heap *c, int verbose)
 {
     job *current       = NULL;
     int number_of_jobs = c->size,
+        sum_service    = 0,
         sum_waiting    = 0,
         sum_turnaround = 0,
         sum_response   = 0,
         max_end        = 0;
     if(verbose) printf("final job values:\n");
     while((current = heap_extract_max(c, id_comparison))) {
+        sum_service += current->service;
         sum_waiting += current->waiting;
         sum_turnaround += (current->end - current->arrive);
         sum_response += (current->start - current->arrive);
@@ -358,6 +371,7 @@ void print_results(heap *c, int verbose)
     printf("final statistics:\n");
     printf(" number of jobs:\t\t%d jobs\n", number_of_jobs);
     printf(" throughput:\t\t\t%3.2f jobs/ms\n", (float)number_of_jobs / (float)max_end);
+    printf(" utilization:\t\t\t%3.2f%%\n", ((float)sum_service/((float)sum_context + (float)sum_service)) * 100.0);
     printf(" average turnaround time:\t%3.2f ms\n", (float)sum_turnaround / (float)number_of_jobs);
     printf(" average response time:\t\t%3.2f ms\n", (float)sum_response / (float)number_of_jobs);
     printf(" average waiting time:\t\t%3.2f ms\n", (float)sum_waiting / (float)number_of_jobs);
