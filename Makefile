@@ -1,9 +1,9 @@
 CC = gcc
 CFLAGS = -g -Wall
-EXEC = scheduler
+EXEC = a2
 
 $(EXEC): 
-	$(CC) $(CFLAGS) -o $(EXEC) main.c heap.c
+	$(CC) $(CFLAGS) -o $(EXEC) a2.c heap.c
 clean:
 	-rm $(EXEC)
 	-rm *.exe
