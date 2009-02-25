@@ -1,4 +1,4 @@
-#include "main.h"
+#include "a2.h"
 
 int main (int argc, char *argv[])
 {
