@@ -149,4 +149,4 @@ In conclusion, if responsiveness is most important, such as in a system that a h
 
 [2] A. Silberschatz and P. B. Galvin. Operating Systems Concepts. Addison Wesley, Reading, MA, Seventh Edition, 2004.
 
-[3] Weisstein, Eric W. "Exponential Distribution." From MathWorld--A Wolfram Web Resource. http://mathworld.wolfram.com/ExponentialDistribution.html
+[3] Weisstein, Eric W. "Exponential Distribution." From MathWorld--A Wolfram Web Resource. [http://mathworld.wolfram.com/ExponentialDistribution.html](http://mathworld.wolfram.com/ExponentialDistribution.html)
