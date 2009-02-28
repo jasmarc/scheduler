@@ -115,7 +115,7 @@ Equation 2.
 
 The random data were generated to exhibit an exponential distribution. The data sets varied by their beta value as shown in Equation 1. for the exponential probability distribution function. The data were generated using GNU Octave, using the exprnd function which expects the probability distribution function to be in the form as shown in Equation 2. Thus, the lambda value is just the reciprocal of the desired beta [3]. Each set had 500 jobs.
 
-![Figure 3.1.](./data/i1.png "Figure 3.1.")
+![Figure 3.1.](../../raw/c4753f86377715ee4b72da2283a582d406990ec6/data/i1.png "Figure 3.1.")
 
 Figure 3.2.
 
