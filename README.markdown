@@ -95,14 +95,14 @@ As described in the previous section, the priority queue implemented as a heap i
 
 ## 2.2.3 Job Struct
 My job data structure is a simple C struct with the following integer values
-* id - The id of the job
-* arrive - The arrive time
-* burst - The remaining burst time
-* waiting - The cumulative wait time
-* start - The start time. I set this to -1 upon initialization as indication of whether I have touched this. This is so that I only set this once.
-* end - The end time
-* priority - The priority of the job. This is used by RR and POSIX. The value here is set as in the formula previously described for the POSIX scheduler. And as mentioned before, for RR, this is actually set to the insert time in order to create a FIFO queue.
-* service – The total service time
+* **id** - The id of the job
+* **arrive** - The arrive time
+* **burst** - The remaining burst time
+* **waiting** - The cumulative wait time
+* **start** - The start time. I set this to -1 upon initialization as indication of whether I have touched this. This is so that I only set this once.
+* **end** - The end time
+* **priority** - The priority of the job. This is used by RR and POSIX. The value here is set as in the formula previously described for the POSIX scheduler. And as mentioned before, for RR, this is actually set to the insert time in order to create a FIFO queue.
+* **service** – The total service time
 
 ## 2.2.4 Preemption
 The SRTF, RR, and POSIX schedulers all exhibit preemption. This was implemented by reinserting the job currently being serviced back into the heap after every clock tick in order to reevaluate the entire heap to see if another job with higher priority should take the place of the current job.
