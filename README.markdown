@@ -107,35 +107,22 @@ In order to simulate real-life data, we need random numbers that exhibit exponen
 ## 3.1 Random Data Samples
 Figures 3.1. through 3.3. show histogram plots of the three sets of random data that were run through the schedulers.
 
+![Equation 1.](http://upload.wikimedia.org/math/7/2/d/72d1a5e46a53d53b31e125a10e322771.png "Equation 1.")
 
-Equation 1.
-
-
-Equation 2.
+![Equation 2.](http://upload.wikimedia.org/math/7/c/1/7c1e7458e99f77f22c350aec59c67e9c.png "Equation 2.")
 
 The random data were generated to exhibit an exponential distribution. The data sets varied by their beta value as shown in Equation 1. for the exponential probability distribution function. The data were generated using GNU Octave, using the exprnd function which expects the probability distribution function to be in the form as shown in Equation 2. Thus, the lambda value is just the reciprocal of the desired beta [3]. Each set had 500 jobs.
 
 ![Figure 3.1.](../raw/c4753f86377715ee4b72da2283a582d406990ec6/data/i1.png "Figure 3.1.")
 
-Figure 3.2.
+![Figure 3.2.](../raw/c4753f86377715ee4b72da2283a582d406990ec6/data/i2.png "Figure 3.2.")
 
-
-
-
-Figure 3.3.
+![Figure 3.3.](../raw/c4753f86377715ee4b72da2283a582d406990ec6/data/i3.png "Figure 3.3.")
 
 ## 3.1 Random Data Samples
 Figures 3.5 through 3.8 show job throughput, CPU utilization, average turnaround time, average response time, and average waiting time by scheduling algorithm and beta value.
 
-
-
-
-
-
-
-
-
-
+(See actual Word Doc version of this paper for Excel charts pertaining to Figures 3.5 through 3.8)
 
 ## 4 Conclusion
 Algorithm choice had no effect on job throughput, however throughput was shown to increase with higher beta values. This suggests that machines with more frequent short burst processes have more difficulty getting jobs completed whereas systems that receive less frequent arrivals and a greater mix of long burst duration processes are able to get more processes completed.
