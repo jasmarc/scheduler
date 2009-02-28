@@ -1,3 +1,8 @@
+This project was done as an assignment for [CSC4320 Operating Systems](http://www.cs.gsu.edu/~skarmakar/csc4320_teaching.html) at [Georgia State University](http://www.cs.gsu.edu/). See [here](http://www.cs.gsu.edu/~skarmakar/cs4320/assignment2.htm) and [here](http://www.cs.gsu.edu/~skarmakar/cs4320/CPUSchedulingSimulation.htm) for original assignment. I have tried to reproduce the paper here in Markdown, but its not perfect. The actual Word Doc for the paper is checked in here as well.
+
+---
+
+# Compilation and Usage
 Please run "make clean && make" to compile.
 You may then use a2 as described below or you may simply run the "runall.sh" script.
 
@@ -11,6 +16,8 @@ You may then use a2 as described below or you may simply run the "runall.sh" scr
      -s <sched(s)>  Specify scheduler(s) to use.
                     Valid schedulers are: sjf, fcfs, srtf, rr, unix
      -v             Verbose mode. Prints an output for each CPU cycle.
+
+---
 
 # Simulation and Algorithm Analysis of CPU Scheduling Models
 #### Jason Marcell
