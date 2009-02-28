@@ -88,14 +88,14 @@ As described in the previous section, the priority queue implemented as a heap i
 
 ## 2.2.3 Job Struct
 My job data structure is a simple C struct with the following integer values
-•   id - The id of the job
-•   arrive - The arrive time
-•   burst - The remaining burst time
-•   waiting - The cumulative wait time
-•   start - The start time. I set this to -1 upon initialization as indication of whether I have touched this. This is so that I only set this once.
-•   end - The end time
-•   priority - The priority of the job. This is used by RR and POSIX. The value here is set as in the formula previously described for the POSIX scheduler. And as mentioned before, for RR, this is actually set to the insert time in order to create a FIFO queue.
-•   service – The total service time
+* id - The id of the job
+* arrive - The arrive time
+* burst - The remaining burst time
+* waiting - The cumulative wait time
+* start - The start time. I set this to -1 upon initialization as indication of whether I have touched this. This is so that I only set this once.
+* end - The end time
+* priority - The priority of the job. This is used by RR and POSIX. The value here is set as in the formula previously described for the POSIX scheduler. And as mentioned before, for RR, this is actually set to the insert time in order to create a FIFO queue.
+* service – The total service time
 
 ## 2.2.4 Preemption
 The SRTF, RR, and POSIX schedulers all exhibit preemption. This was implemented by reinserting the job currently being serviced back into the heap after every clock tick in order to reevaluate the entire heap to see if another job with higher priority should take the place of the current job.
@@ -115,7 +115,7 @@ Equation 2.
 
 The random data were generated to exhibit an exponential distribution. The data sets varied by their beta value as shown in Equation 1. for the exponential probability distribution function. The data were generated using GNU Octave, using the exprnd function which expects the probability distribution function to be in the form as shown in Equation 2. Thus, the lambda value is just the reciprocal of the desired beta [3]. Each set had 500 jobs.
 
-Figure 3.1.
+![Figure 3.1.](./data/i1.png "Figure 3.1.")
 
 Figure 3.2.
 
